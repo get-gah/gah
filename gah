@@ -1,0 +1,303 @@
+#!/usr/bin/env bash
+
+# gah! Get App Homie!
+#
+# @author Marek `marverix` Sierociński
+# @license GNU GPLv3
+
+# Pipeline mode
+set -e
+
+#--------------------------------------------------
+#region Constants
+
+VERSION="0.1.0"
+HELP_STRING="Type 'gah help' to show help."
+
+#endregion
+#--------------------------------------------------
+#region Variables
+
+tmp_dir=""
+
+#endregion
+#--------------------------------------------------
+#region Utils
+
+function print_blue() {
+	echo -e "\033[0;34m$1\033[0m"
+}
+
+function print_green() {
+	echo -e "\033[0;32m$1\033[0m"
+}
+
+function print_yellow() {
+	echo -e "\033[0;33m$1\033[0m"
+}
+
+function throw_error() {
+	echo -e "\033[0;31mError: $2\033[0m" >&2
+	exit $1
+}
+
+function print_debug() {
+	if [[ "$DEBUG" == "true" ]]; then
+		echo -e "[DEBUG] $1" >&2
+	fi
+}
+
+function cleanup() {
+	if [[ -n "$tmp_dir" && -d "$tmp_dir" ]]; then
+		rm -fr "$tmp_dir"
+	fi
+}
+
+#endregion
+#--------------------------------------------------
+#region RegExp functions
+
+function get_os() {
+	print_debug "Checking OS type"
+	case $(uname -s) in
+		Linux*) echo "linux" ;;
+		Darwin*) echo "macos" ;;
+		*) echo "NOT_SUPPORTED" ;;
+	esac
+}
+
+function get_os_regexp_part() {
+	case $(get_os) in
+		linux) echo '[_-]linux' ;;
+		macos) echo '[_-](darwin|macos)' ;;
+		*) throw_error 10 "Your OS type is not supported" ;;
+	esac
+}
+
+function get_arch() {
+	print_debug "Checking CPU architecture"
+	case $(uname -m) in
+		x86_64|amd64) echo "amd64" ;;
+		arm64|aarch64|armv8) echo "arm64" ;;
+		*) echo "NOT_SUPPORTED" ;;
+	esac
+}
+
+function get_arch_regexp_part() {
+	case $(get_arch) in
+		amd64) echo '[_-]amd64' ;;
+		arm64) echo '[_-](arm64|aarch64)' ;;
+		*) throw_error 11 "Your CPU/OS architecture is not supported" ;;
+	esac
+}
+
+function get_filename_regexp() {
+	local name_regexp_part='[a-z][a-z0-9-]+?'
+	local version_regexp_part='([_-]v?[0-9]+\.[0-9]+\.[0-9]+)?'
+	local os_regexp_part=$(get_os_regexp_part)
+	local arch_regexp_part=$(get_arch_regexp_part)
+
+	local regexp=''
+	regexp+="$name_regexp_part"
+	regexp+="$version_regexp_part"
+	regexp+="$os_regexp_part"
+	regexp+="$arch_regexp_part"
+	regexp+='(\.zip|\.tar\.gz|\.tar\.xz|\.tar\.bz2)?'
+	
+	echo "$regexp"
+}
+
+function get_name_regexp() {
+	echo "^$(get_filename_regexp)\$"
+}
+
+function get_md_url_regexp() {
+	echo "\(https:\/\/[a-z0-9.\/]+\/$(get_filename_regexp)\)"
+}
+
+#endregion
+#--------------------------------------------------
+#region GitHub API functions
+
+function get_fetch_release_info_url() {
+	local suffix="latest"
+	if [[ -n "$2" && "$2" != "latest" ]]; then
+		suffix="tags/$2"
+	fi
+
+	echo "https://api.github.com/repos/$1/releases/$suffix"
+}
+
+function fetch_release_info() {
+	local url=$(get_fetch_release_info_url "$1" "$2")
+	print_debug "Fetching release information from: $url"
+
+	curl -s "$url" > release.json
+
+	local err_status=$(jq -r '.status' release.json)
+	print_debug "Error status: $err_status"
+
+	if [[ "$err_status" != "null" ]]; then
+		throw_error 13 "Couldn't fetch release information.\nResponse from GitHub API: [$err_status] $(jq -r '.message' release.json)"
+	fi
+
+	local release_name=$(jq -r '.name' release.json)
+	print_green "Found release: $release_name"
+}
+
+function find_download_url() {
+	local release_json="$1"
+
+	# First try to find the matching file in the assets
+	local regexp=$(get_name_regexp)
+	local found="false"
+	
+	print_debug "Regexp: $regexp"
+
+	for name in $(jq -r '.assets[].name' "$release_json"); do
+		lower_name=$(echo "$name" | tr '[A-Z]' '[a-z]')
+		if [[ "$lower_name" =~ $regexp ]]; then
+			print_debug "  $name ... Match!"
+			found="true"
+			jq -r --arg name "$name" '.assets[] | select(.name == $name) | .browser_download_url' "$release_json"
+		else
+			print_debug "  $name ... Doesn't match"
+		fi
+	done
+
+	# If asset matched, return
+	if [[ "$found" == "true" ]]; then
+		return
+	fi
+
+	# If no asset matched, try to find the download URL in the release body
+	print_debug "No asset matched, trying to find download URL in the release body"
+
+	regexp=$(get_md_url_regexp)
+	print_debug "URL Regexp: $regexp"
+	
+	jq -r '.body' "$release_json" | while read -r line; do
+		lower_line=$(echo "$line" | tr '[A-Z]' '[a-z]')
+		if [[ "$lower_line" =~ $regexp ]]; then
+			print_debug "  $line ... Match!"
+			line="${BASH_REMATCH[0]}"
+			line=${line:1}
+			line=${line::-1}
+			echo $line
+		else
+			print_debug "  $line ... Doesn't match"
+		fi
+	done
+}
+
+#endregion
+#--------------------------------------------------
+#region Known aliases
+
+declare -A aliases
+aliases[argocd]="argoproj/argo-cd"
+aliases[gh]="cli/cli"
+aliases[goss]="goss-org/goss"
+aliases[helm]="helm/helm"
+aliases[k9s]="derailed/k9s"
+aliases[kops]="kubernetes/kops"
+aliases[terragrunt]="gruntwork-io/terragrunt"
+aliases[tofu]="opentofu/opentofu"
+aliases[trufflehog]="trufflesecurity/trufflehog"
+
+function get_known_alias() {
+	echo "${aliases[$1]}"
+}
+
+#endregion
+#--------------------------------------------------
+#region Command functions
+
+function command_help() {
+	echo "gah"
+	echo "  install <owner/repo_name | known_alias> [<VERSION>]"
+	echo "  show <aliases>"
+	echo "  help"
+	echo "  VERSION"
+	exit 0
+}
+
+function command_version() {
+	echo $VERSION
+	exit 0
+}
+
+function command_install() {
+	# Create temporary directory
+	tmp_dir=$(mktemp -d)
+
+	# Change to temporary directory
+	cd $tmp_dir
+
+	# Fetch the release information
+	fetch_release_info "$1" "$2"
+
+	# Find the download URL
+	find_download_url "$tmp_dir/release.json"
+}
+
+function command_show_aliases() {
+	echo "Known aliases:"
+	for alias in "${!aliases[@]}"; do
+		echo "  $alias -> ${aliases[$alias]}"
+	done
+}
+
+#endregion
+#--------------------------------------------------
+
+function main() {
+	if [[ -z "$1" || "$1" == "help" ]]; then
+		command_help
+
+	elif [[ "$1" == "VERSION" ]]; then
+		command_version
+
+	elif [[ "$1" == "install" ]]; then
+		if [[ -z "$2" ]]; then
+			throw_error "Please provide either repo in format 'owner/repo_name' or known alias.\n$HELP_STRING"
+
+		elif [[ "$2" == *"/"* ]]; then
+			if [[ "$2" =~ ^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$ ]]; then
+				repo="$2"
+			else
+				throw_error "Given string '$2' is not in format 'owner/repo_name'.\n$HELP_STRING"
+			fi
+
+		elif [[ -n "${aliases[$2]}" ]]; then
+			repo="${aliases[$2]}"
+
+		else
+			throw_error "Given string '$2' is not a known alias.\nTo see known aliases type 'gah show aliases'."
+		fi
+
+		tag="$3"
+		if [[ -z "$3" ]]; then
+			tag=latest
+		fi
+
+		command_install "$repo" "$tag"
+
+	elif [[ "$1" == "show" ]]; then
+		if [[ "$2" == "aliases" ]]; then
+			command_show_aliases
+
+		else
+			throw_error "Unknown subcommand.\n$HELP_STRING"
+		fi
+
+	else
+		throw_error "Unknown command '$command'.\n$HELP_STRING"
+	fi
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+	# The script is being executed directly
+	trap cleanup EXIT ERR SIGINT SIGTERM
+	main "$@"
+fi
