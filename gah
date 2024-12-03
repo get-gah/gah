@@ -235,10 +235,71 @@ function command_install() {
 	cd $tmp_dir
 
 	# Fetch the release information
+	print_blue "Fetching release info for: $1 [$2]"
 	fetch_release_info "$1" "$2"
 
 	# Find the download URL
-	find_download_url "$tmp_dir/release.json"
+	local download_url=$(find_download_url "$tmp_dir/release.json")
+	print_debug "Download URL:\n$download_url"
+
+	# Check if several download URLs were found
+	if [[ $(echo "$download_url" | wc -l) -gt 1 ]]; then
+		print_yellow "Several download URLs were found which match your OS and arch. Please select one:"
+		select url in $download_url; do
+			download_url=$url
+			break
+		done
+
+		if [[ -z "$download_url" ]]; then
+			throw_error 14 "No download URL was selected"
+		fi
+	fi
+
+	# Get a filename
+	local filename=$(basename "$download_url")
+
+	# Download the file
+	print_blue "Downloading: $filename"
+	curl -L --progress-bar -o "$filename" "$download_url"
+
+	# Check if there is a dot in the filename
+	if [[ "$filename" != *"."* ]]; then
+		print_debug "No file extension found in the filename - no need to extract"
+		chmod +x "$filename"
+	else
+		# Get the file extension
+		local extension="${filename##*.}"
+		print_debug "File extension: $extension"
+
+		# Extract with tar if it's gz, bz2 or xz
+		if [[ "$extension" == "gz" || "$extension" == "bz2" || "$extension" == "xz" ]]; then
+			print_blue "Extracting: $filename"
+			tar -xf "$filename"
+
+		elif [[ "$extension" == "zip" ]]; then
+			print_blue "Extracting: $filename"
+			unzip -q "$filename"
+
+		else
+			throw_error 12 "Unknown file extension: $extension"
+		fi
+	fi
+
+	for bin_file in $(find . -type f -executable); do
+		local bin_name=$(basename "$bin_file")
+		print_blue "Installing: $bin_name"
+
+		print_yellow "Give a new name or keep '$bin_name'? (Leave empty to keep the same)"
+		read -p "New name: " new_name
+		if [[ -n "$new_name" ]]; then
+			bin_name="$new_name"
+		fi
+
+		mv "$bin_file" "$HOME/.local/bin/$bin_name"
+		print_green "Installed: $bin_name"
+	done
+
+	print_green "Done!"
 }
 
 function command_show_aliases() {
@@ -260,20 +321,20 @@ function main() {
 
 	elif [[ "$1" == "install" ]]; then
 		if [[ -z "$2" ]]; then
-			throw_error "Please provide either repo in format 'owner/repo_name' or known alias.\n$HELP_STRING"
+			throw_error 1 "Please provide either repo in format 'owner/repo_name' or known alias.\n$HELP_STRING"
 
 		elif [[ "$2" == *"/"* ]]; then
 			if [[ "$2" =~ ^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$ ]]; then
 				repo="$2"
 			else
-				throw_error "Given string '$2' is not in format 'owner/repo_name'.\n$HELP_STRING"
+				throw_error 2 "Given string '$2' is not in format 'owner/repo_name'.\n$HELP_STRING"
 			fi
 
 		elif [[ -n "${aliases[$2]}" ]]; then
 			repo="${aliases[$2]}"
 
 		else
-			throw_error "Given string '$2' is not a known alias.\nTo see known aliases type 'gah show aliases'."
+			throw_error 3 "Given string '$2' is not a known alias.\nTo see known aliases type 'gah show aliases'."
 		fi
 
 		tag="$3"
@@ -288,11 +349,11 @@ function main() {
 			command_show_aliases
 
 		else
-			throw_error "Unknown subcommand.\n$HELP_STRING"
+			throw_error 4 "Unknown subcommand.\n$HELP_STRING"
 		fi
 
 	else
-		throw_error "Unknown command '$command'.\n$HELP_STRING"
+		throw_error 5 "Unknown command '$command'.\n$HELP_STRING"
 	fi
 }
 
