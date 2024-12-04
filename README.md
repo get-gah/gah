@@ -16,7 +16,9 @@ Features:
 
 ## Installation
 
-TODO
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/marverix/gah/refs/heads/master/tools/install.sh)"
+```
 
 ## Usage
 
@@ -51,3 +53,7 @@ gah install argocd v2.0.3
 ```bash
 gah install hashicorp/vagrant
 ```
+
+## License
+
+gah is licensed under the GPL-3.0 License. See [LICENSE](./LICENSE) for the full license text.
