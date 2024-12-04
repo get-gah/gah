@@ -1,6 +1,6 @@
 ![gah! logo](./_static/logo.svg)
 
-`gah` is an GitHub Releases app installer, that does not require sudo. It is a simple bash script that downloads the latest release of an app from GitHub and installs it in `~/.local/bin`. It is designed to be used with apps that are distributed as a single binary file.
+`gah` is an GitHub Releases app installer, that **DOES NOT REQUIRE SUDO**! It is a simple bash script that downloads the latest release of an app from GitHub and installs it in `~/.local/bin`. It is designed to be used with apps that are distributed as a single binary file.
 
 Features:
 
