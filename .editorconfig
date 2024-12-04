@@ -11,3 +11,6 @@ tab_width = 4
 
 [{gah,*.sh,*.bash,*.bats}]
 indent_style = tab
+
+[*.md]
+indent_size = 2
