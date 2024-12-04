@@ -215,15 +215,15 @@ function get_known_alias() {
 
 function command_help() {
 	echo "gah"
-	echo "  install <owner/repo_name | known_alias> [<VERSION>]"
+	echo "  install <github_owner/github_repo_name | known_alias> [<git_tag>]"
 	echo "  show <aliases>"
 	echo "  help"
-	echo "  VERSION"
+	echo "  version"
 	exit 0
 }
 
 function command_version() {
-	echo $VERSION
+	echo "gah v$VERSION"
 	exit 0
 }
 
@@ -316,7 +316,7 @@ function main() {
 	if [[ -z "$1" || "$1" == "help" ]]; then
 		command_help
 
-	elif [[ "$1" == "VERSION" ]]; then
+	elif [[ "$1" == "version" ]]; then
 		command_version
 
 	elif [[ "$1" == "install" ]]; then
