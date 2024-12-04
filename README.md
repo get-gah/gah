@@ -20,6 +20,8 @@ TODO
 
 ## Usage
 
+![gah demo](./_static/demo.gif)
+
 Type `gah help` to see the list of available commands.
 
 ```text
