@@ -6,6 +6,7 @@ load "$DIR/gah"
 
 setup() {
 	common_setup
+	DEBUG=""
 }
 
 teardown() {
@@ -58,7 +59,7 @@ teardown() {
 	run get_os_regexp_part
 
 	assert_success
-	assert_output '[_-]linux'
+	assert_output '[_-](unknown[_-])?(linux|linux-gnu|linux-musl)'
 }
 
 @test "get_os_regexp_part should return proper string for macos" {
@@ -66,7 +67,7 @@ teardown() {
 	run get_os_regexp_part
 
 	assert_success
-	assert_output '[_-](darwin|macos)'
+	assert_output '[_-](apple[_-])?(darwin|macos)'
 }
 
 @test "get_os_regexp_part should exit with error code" {
@@ -129,7 +130,7 @@ teardown() {
 	run get_arch_regexp_part
 
 	assert_success
-	assert_output '([_-]amd64)?'
+	assert_output '[_-](amd64|x86_64)'
 }
 
 @test "get_arch_regexp_part should return proper string for arm64 architecture" {
@@ -148,46 +149,46 @@ teardown() {
 	assert_output --partial 'Error: Your CPU/OS architecture is not supported'
 }
 
-@test "get_regexp should return proper string for linux/amd64" {
+@test "get_filename_regexp should return proper string for linux/amd64" {
 	stub uname \
 		"-s : echo 'Linux'" \
 		"-m : echo 'x86_64'"
 		
-	run get_regexp
+	run get_filename_regexp
 
 	assert_success
-	assert_output '^[a-z][a-z0-9-]+?([_-]v?\d+\.\d+\.\d+)?[_-]linux([_-]amd64)?(\.zip$|\.tar\.gz$|\.tgz$|$)'
+	assert_output '[a-z][a-z0-9-]+?([_-]v?[0-9]+\.[0-9]+\.[0-9]+)?([_-](unknown[_-])?(linux|linux-gnu|linux-musl)[_-](amd64|x86_64)|[_-](amd64|x86_64)[_-](unknown[_-])?(linux|linux-gnu|linux-musl))(\.zip|\.tar\.gz|\.tar\.xz|\.tar\.bz2)?'
 }
 
-@test "get_regexp should return proper string for linux/arm64" {
+@test "get_filename_regexp should return proper string for linux/arm64" {
 	stub uname \
 		"-s : echo 'Linux-gnu'" \
 		"-m : echo 'aarch64'"
 		
-	run get_regexp
+	run get_filename_regexp
 
 	assert_success
-	assert_output '^[a-z][a-z0-9-]+?([_-]v?\d+\.\d+\.\d+)?[_-]linux[_-](arm64|aarch64)(\.zip$|\.tar\.gz$|\.tgz$|$)'
+	assert_output '[a-z][a-z0-9-]+?([_-]v?[0-9]+\.[0-9]+\.[0-9]+)?([_-](unknown[_-])?(linux|linux-gnu|linux-musl)[_-](arm64|aarch64)|[_-](arm64|aarch64)[_-](unknown[_-])?(linux|linux-gnu|linux-musl))(\.zip|\.tar\.gz|\.tar\.xz|\.tar\.bz2)?'
 }
 
-@test "get_regexp should return proper string for macos/amd64" {
+@test "get_filename_regexp should return proper string for macos/amd64" {
 	stub uname \
 		"-s : echo 'Darwin'" \
 		"-m : echo 'amd64'"
 		
-	run get_regexp
+	run get_filename_regexp
 
 	assert_success
-	assert_output '^[a-z][a-z0-9-]+?([_-]v?\d+\.\d+\.\d+)?[_-](darwin|macos)([_-]amd64)?(\.zip$|\.tar\.gz$|\.tgz$|$)'
+	assert_output '[a-z][a-z0-9-]+?([_-]v?[0-9]+\.[0-9]+\.[0-9]+)?([_-](apple[_-])?(darwin|macos)[_-](amd64|x86_64)|[_-](amd64|x86_64)[_-](apple[_-])?(darwin|macos))(\.zip|\.tar\.gz|\.tar\.xz|\.tar\.bz2)?'
 }
 
-@test "get_regexp should return proper string for macos/arm64" {
+@test "get_filename_regexp should return proper string for macos/arm64" {
 	stub uname \
 		"-s : echo 'Darwin 19.0.1'" \
 		"-m : echo 'arm64'"
 		
-	run get_regexp
+	run get_filename_regexp
 
 	assert_success
-	assert_output '^[a-z][a-z0-9-]+?([_-]v?\d+\.\d+\.\d+)?[_-](darwin|macos)[_-](arm64|aarch64)(\.zip$|\.tar\.gz$|\.tgz$|$)'
+	assert_output '[a-z][a-z0-9-]+?([_-]v?[0-9]+\.[0-9]+\.[0-9]+)?([_-](apple[_-])?(darwin|macos)[_-](arm64|aarch64)|[_-](arm64|aarch64)[_-](apple[_-])?(darwin|macos))(\.zip|\.tar\.gz|\.tar\.xz|\.tar\.bz2)?'
 }

@@ -6,6 +6,7 @@ load "$DIR/gah"
 
 setup() {
 	common_setup
+	DEBUG=""
 }
 
 teardown() {
