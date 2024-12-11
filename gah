@@ -199,11 +199,13 @@ aliases[argocd]="argoproj/argo-cd"
 aliases[gh]="cli/cli"
 aliases[goss]="goss-org/goss"
 aliases[helm]="helm/helm"
+aliases[jq]="jqlang/jq"
 aliases[k9s]="derailed/k9s"
 aliases[kops]="kubernetes/kops"
 aliases[terragrunt]="gruntwork-io/terragrunt"
 aliases[tofu]="opentofu/opentofu"
 aliases[trufflehog]="trufflesecurity/trufflehog"
+aliases[yq]="mikefarah/yq"
 
 function get_known_alias() {
 	echo "${aliases[$1]}"
