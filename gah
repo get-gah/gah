@@ -11,7 +11,7 @@ set -e
 #--------------------------------------------------
 #region Constants
 
-VERSION="0.1.1"
+VERSION="0.1.2"
 HELP_STRING="Type 'gah help' to show help."
 
 #endregion
@@ -57,6 +57,13 @@ function cleanup() {
 #--------------------------------------------------
 #region RegExp functions
 
+EXT_ZIP="\.zip"
+EXT_TAR="\.tar\.gz|\.tar\.xz|\.tar\.bz2"
+EXT_ALL_ARCHIVES="$EXT_ZIP|$EXT_TAR"
+
+REGEXP_EXT_ZIP=".+(${EXT_ZIP})$"
+REGEXP_EXT_TAR=".+(${EXT_TAR})$"
+
 function get_os() {
 	print_debug "Checking OS type"
 	case $(uname -s) in
@@ -99,7 +106,7 @@ function get_filename_regexp() {
 
 	local regexp="${name_regexp_part}${version_regexp_part}"
 	regexp+="(${os_regexp_part}${arch_regexp_part}|${arch_regexp_part}${os_regexp_part})"	
-	regexp+='(\.zip|\.tar\.gz|\.tar\.xz|\.tar\.bz2)?'
+	regexp+="(${EXT_ALL_ARCHIVES})?"
 	echo "$regexp"
 }
 
@@ -197,6 +204,7 @@ aliases[btm]="clementtsang/bottom"
 aliases[duf]="muesli/duf"
 aliases[fd]="sharkdp/fd"
 aliases[fzf]="junegunn/fzf"
+aliases[genact]="svenstaro/genact"
 aliases[gh]="cli/cli"
 aliases[goss]="goss-org/goss"
 aliases[gping]="orf/gping"
@@ -268,27 +276,18 @@ function command_install() {
 	print_blue "Downloading: $filename"
 	curl -L --progress-bar -o "$filename" "$download_url"
 
-	# Check if there is a dot in the filename
-	if [[ "$filename" != *"."* ]]; then
-		print_debug "No file extension found in the filename - no need to extract"
-		chmod +x "$filename"
+	# Extract if needed
+	if [[ "$filename" =~ $REGEXP_EXT_TAR ]]; then
+		print_blue "Extracting: $filename"
+		tar -xf "$filename"
+
+	elif [[ "$filename" =~ $REGEXP_EXT_ZIP ]]; then
+		print_blue "Extracting: $filename"
+		unzip -q "$filename"
+
 	else
-		# Get the file extension
-		local extension="${filename##*.}"
-		print_debug "File extension: $extension"
-
-		# Extract with tar if it's gz, bz2 or xz
-		if [[ "$extension" == "gz" || "$extension" == "bz2" || "$extension" == "xz" ]]; then
-			print_blue "Extracting: $filename"
-			tar -xf "$filename"
-
-		elif [[ "$extension" == "zip" ]]; then
-			print_blue "Extracting: $filename"
-			unzip -q "$filename"
-
-		else
-			throw_error 12 "Unknown file extension: $extension"
-		fi
+		print_debug "Does not look like supported archive - no need to extract"
+		chmod +x "$filename"
 	fi
 
 	for bin_file in $(find . -type f -executable); do
