@@ -68,8 +68,8 @@ function get_os() {
 
 function get_os_regexp_part() {
 	case $(get_os) in
-		linux) echo '[_-]linux' ;;
-		macos) echo '[_-](darwin|macos)' ;;
+		linux) echo '[_-](unknown[_-])?(linux|linux-gnu|linux-musl)' ;;
+		macos) echo '[_-](apple[_-])?(darwin|macos)' ;;
 		*) throw_error 10 "Your OS type is not supported" ;;
 	esac
 }
@@ -85,7 +85,7 @@ function get_arch() {
 
 function get_arch_regexp_part() {
 	case $(get_arch) in
-		amd64) echo '[_-]amd64' ;;
+		amd64) echo '[_-](amd64|x86_64)' ;;
 		arm64) echo '[_-](arm64|aarch64)' ;;
 		*) throw_error 11 "Your CPU/OS architecture is not supported" ;;
 	esac
@@ -97,13 +97,9 @@ function get_filename_regexp() {
 	local os_regexp_part=$(get_os_regexp_part)
 	local arch_regexp_part=$(get_arch_regexp_part)
 
-	local regexp=''
-	regexp+="$name_regexp_part"
-	regexp+="$version_regexp_part"
-	regexp+="$os_regexp_part"
-	regexp+="$arch_regexp_part"
+	local regexp="${name_regexp_part}${version_regexp_part}"
+	regexp+="(${os_regexp_part}${arch_regexp_part}|${arch_regexp_part}${os_regexp_part})"	
 	regexp+='(\.zip|\.tar\.gz|\.tar\.xz|\.tar\.bz2)?'
-	
 	echo "$regexp"
 }
 
@@ -196,12 +192,20 @@ function find_download_url() {
 
 declare -A aliases
 aliases[argocd]="argoproj/argo-cd"
+aliases[bat]="sharkdp/bat"
+aliases[btm]="clementtsang/bottom"
+aliases[duf]="muesli/duf"
+aliases[fd]="sharkdp/fd"
+aliases[fzf]="junegunn/fzf"
 aliases[gh]="cli/cli"
 aliases[goss]="goss-org/goss"
+aliases[gping]="orf/gping"
 aliases[helm]="helm/helm"
 aliases[jq]="jqlang/jq"
 aliases[k9s]="derailed/k9s"
 aliases[kops]="kubernetes/kops"
+aliases[lazygit]="jesseduffield/lazygit"
+aliases[rg]="BurntSushi/ripgrep"
 aliases[terragrunt]="gruntwork-io/terragrunt"
 aliases[tofu]="opentofu/opentofu"
 aliases[trufflehog]="trufflesecurity/trufflehog"
