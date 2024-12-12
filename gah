@@ -11,8 +11,11 @@ set -e
 #--------------------------------------------------
 #region Constants
 
-VERSION="0.1.2"
+VERSION="0.2.0"
 HELP_STRING="Type 'gah help' to show help."
+
+GAH_CACHE_DIR="$HOME/.cache/gah"
+GAH_DB_FILE="$GAH_CACHE_DIR/db.json"
 
 #endregion
 #--------------------------------------------------
@@ -195,32 +198,23 @@ function find_download_url() {
 
 #endregion
 #--------------------------------------------------
-#region Known aliases
+#region DB functions
 
-declare -A aliases
-aliases[argocd]="argoproj/argo-cd"
-aliases[bat]="sharkdp/bat"
-aliases[btm]="clementtsang/bottom"
-aliases[duf]="muesli/duf"
-aliases[fd]="sharkdp/fd"
-aliases[fzf]="junegunn/fzf"
-aliases[genact]="svenstaro/genact"
-aliases[gh]="cli/cli"
-aliases[goss]="goss-org/goss"
-aliases[gping]="orf/gping"
-aliases[helm]="helm/helm"
-aliases[jq]="jqlang/jq"
-aliases[k9s]="derailed/k9s"
-aliases[kops]="kubernetes/kops"
-aliases[lazygit]="jesseduffield/lazygit"
-aliases[rg]="BurntSushi/ripgrep"
-aliases[terragrunt]="gruntwork-io/terragrunt"
-aliases[tofu]="opentofu/opentofu"
-aliases[trufflehog]="trufflesecurity/trufflehog"
-aliases[yq]="mikefarah/yq"
+function fetch_db() {
+	print_debug "Fetching DB"
+	curl -s "https://raw.githubusercontent.com/marverix/gah/refs/heads/db/db.json" > "$GAH_DB_FILE"
+}
+
+function get_db_path() {
+	if [[ ! -f "$GAH_DB_FILE" ]] || test "$(find "$GAH_DB_FILE" -mmin +1440)"; then
+		fetch_db
+	fi
+
+	echo "$GAH_DB_FILE"
+}
 
 function get_known_alias() {
-	echo "${aliases[$1]}"
+	jq -r --arg x "$1" '.aliases[$x]' "$(get_db_path)"
 }
 
 #endregion
@@ -309,15 +303,16 @@ function command_install() {
 
 function command_show_aliases() {
 	echo "Known aliases:"
-	for alias in "${!aliases[@]}"; do
-		echo "  $alias -> ${aliases[$alias]}"
-	done
+	jq -r '.aliases' "$(get_db_path)"
 }
 
 #endregion
 #--------------------------------------------------
 
 function main() {
+	# Initialize
+	mkdir -p "$GAH_CACHE_DIR"
+
 	if [[ -z "$1" || "$1" == "help" ]]; then
 		command_help
 
@@ -335,8 +330,8 @@ function main() {
 				throw_error 2 "Given string '$2' is not in format 'owner/repo_name'.\n$HELP_STRING"
 			fi
 
-		elif [[ -n "${aliases[$2]}" ]]; then
-			repo="${aliases[$2]}"
+		elif [[ "$(get_known_alias $2)" ]]; then
+			repo="$(get_known_alias $2)"
 
 		else
 			throw_error 3 "Given string '$2' is not a known alias.\nTo see known aliases type 'gah show aliases'."
