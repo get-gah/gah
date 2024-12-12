@@ -11,7 +11,7 @@ set -e
 #--------------------------------------------------
 #region Constants
 
-VERSION="0.2.0"
+VERSION="0.2.1"
 HELP_STRING="Type 'gah help' to show help."
 
 GAH_CACHE_DIR="$HOME/.cache/gah"
@@ -330,7 +330,7 @@ function main() {
 				throw_error 2 "Given string '$2' is not in format 'owner/repo_name'.\n$HELP_STRING"
 			fi
 
-		elif [[ "$(get_known_alias $2)" ]]; then
+		elif [[ "$(get_known_alias $2)" != "null" ]]; then
 			repo="$(get_known_alias $2)"
 
 		else
