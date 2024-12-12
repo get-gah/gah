@@ -11,7 +11,7 @@ set -e
 #--------------------------------------------------
 #region Constants
 
-VERSION="0.2.2"
+VERSION="0.3.0"
 HELP_STRING="Type 'gah help' to show help."
 
 GAH_CACHE_DIR="$HOME/.cache/gah"
@@ -95,8 +95,8 @@ function get_arch() {
 
 function get_arch_regexp_part() {
 	case $(get_arch) in
-		amd64) echo '[_-](amd64|x86_64)' ;;
-		arm64) echo '[_-](arm64|aarch64)' ;;
+		amd64) echo '[_-](amd64|x86_64|universal)' ;;
+		arm64) echo '[_-](arm64|aarch64|universal)' ;;
 		*) throw_error 11 "Your CPU/OS architecture is not supported" ;;
 	esac
 }
