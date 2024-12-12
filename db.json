@@ -1,0 +1,24 @@
+{
+    "aliases": {
+        "argocd": "argoproj/argo-cd",
+        "bat": "sharkdp/bat",
+        "btm": "clementtsang/bottom",
+        "duf": "muesli/duf",
+        "fd": "sharkdp/fd",
+        "fzf": "junegunn/fzf",
+        "genact": "svenstaro/genact",
+        "gh": "cli/cli",
+        "goss": "goss-org/goss",
+        "gping": "orf/gping",
+        "helm": "helm/helm",
+        "jq": "jqlang/jq",
+        "k9s": "derailed/k9s",
+        "kops": "kubernetes/kops",
+        "lazygit": "jesseduffield/lazygit",
+        "rg": "BurntSushi/ripgrep",
+        "terragrunt": "gruntwork-io/terragrunt",
+        "tofu": "opentofu/opentofu",
+        "trufflehog": "trufflesecurity/trufflehog",
+        "yq": "mikefarah/yq"
+    }
+}
