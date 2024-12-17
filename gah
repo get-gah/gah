@@ -11,7 +11,7 @@ set -e
 #--------------------------------------------------
 #region Constants
 
-VERSION="0.3.0"
+VERSION="0.3.1"
 HELP_STRING="Type 'gah help' to show help."
 
 GAH_CACHE_DIR="$HOME/.cache/gah"
@@ -103,7 +103,7 @@ function get_arch_regexp_part() {
 
 function get_filename_regexp() {
 	local name_regexp_part='[a-z][a-z0-9_-]+?'
-	local version_regexp_part='([_-]v?[0-9]+\.[0-9]+\.[0-9]+)?'
+	local version_regexp_part='([_-]v?[0-9.]+)?'
 	local os_regexp_part=$(get_os_regexp_part)
 	local arch_regexp_part=$(get_arch_regexp_part)
 
