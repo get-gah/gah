@@ -11,7 +11,7 @@ set -e
 #--------------------------------------------------
 #region Constants
 
-VERSION="0.4.0"
+VERSION="0.4.1"
 HELP_STRING="Type 'gah help' to show help."
 
 GAH_CACHE_DIR="$HOME/.cache/gah"
@@ -163,7 +163,7 @@ function find_download_url() {
 	print_debug "Regexp: $regexp"
 
 	for name in $(jq -r '.assets[].name' "$release_json"); do
-		lower_name=$(echo "$name" | tr '[A-Z]' '[a-z]')
+		local lower_name=$(echo "$name" | tr '[A-Z]' '[a-z]')
 		if [[ "$lower_name" =~ $regexp ]]; then
 			print_debug "  $name ... Match!"
 			found="true"
@@ -288,7 +288,7 @@ function command_install() {
 
 	for bin_file in $(find . -type f -executable); do
 		local file_name=$(basename "$bin_file")
-		lower_file_name=$(echo "$file_name" | tr '[A-Z]' '[a-z]')
+		local lower_file_name=$(echo "$file_name" | tr '[A-Z]' '[a-z]')
 
 		if [[ "$lower_file_name" =~ $REGEXP_SKIP_FILES ]]; then
 			print_debug "Skipping: $file_name"
