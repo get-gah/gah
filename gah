@@ -11,7 +11,7 @@ set -e
 #--------------------------------------------------
 #region Constants
 
-VERSION="0.3.1"
+VERSION="0.4.0"
 HELP_STRING="Type 'gah help' to show help."
 
 GAH_CACHE_DIR="$HOME/.cache/gah"
@@ -66,6 +66,8 @@ EXT_ALL_ARCHIVES="$EXT_ZIP|$EXT_TAR"
 
 REGEXP_EXT_ZIP=".+(${EXT_ZIP})$"
 REGEXP_EXT_TAR=".+(${EXT_TAR})$"
+
+REGEXP_SKIP_FILES="^(license|readme|changelog).*|.*\.(md|txt)$"
 
 function get_os() {
 	print_debug "Checking OS type"
@@ -285,17 +287,24 @@ function command_install() {
 	fi
 
 	for bin_file in $(find . -type f -executable); do
-		local bin_name=$(basename "$bin_file")
-		print_blue "Installing: $bin_name"
+		local file_name=$(basename "$bin_file")
+		lower_file_name=$(echo "$file_name" | tr '[A-Z]' '[a-z]')
 
-		print_yellow "Give a new name or keep '$bin_name'? (Leave empty to keep the same)"
-		read -p "New name: " new_name
-		if [[ -n "$new_name" ]]; then
-			bin_name="$new_name"
+		if [[ "$lower_file_name" =~ $REGEXP_SKIP_FILES ]]; then
+			print_debug "Skipping: $file_name"
+			continue
 		fi
 
-		mv "$bin_file" "$HOME/.local/bin/$bin_name"
-		print_green "Installed: $bin_name"
+		print_blue "Installing: $file_name"
+
+		print_yellow "Give a new name or keep '$file_name'? (Leave empty to keep the same)"
+		read -p "New name: " new_name
+		if [[ -n "$new_name" ]]; then
+			file_name="$new_name"
+		fi
+
+		mv "$bin_file" "$HOME/.local/bin/$file_name"
+		print_green "Installed: $file_name"
 	done
 
 	print_green "Done!"
