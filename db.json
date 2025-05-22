@@ -3,6 +3,7 @@
         "argocd": "argoproj/argo-cd",
         "bat": "sharkdp/bat",
         "btm": "clementtsang/bottom",
+        "duckdb": "duckdb/duckdb",
         "duf": "muesli/duf",
         "fd": "sharkdp/fd",
         "fzf": "junegunn/fzf",
