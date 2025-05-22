@@ -59,6 +59,12 @@ If you want to use the default names for the installed binaries, you can use the
 gah install getsops/sops --use-default-names
 ```
 
+### Update gah
+
+```sh
+gah update
+```
+
 ## Examples
 
 ### Install latest version of gh (GitHub CLI)

@@ -232,12 +232,29 @@ function get_known_alias() {
 
 #endregion
 #--------------------------------------------------
+#region Other functions
+
+function semver_to_number() {
+	if [[ "$1" =~ ^v ]]; then
+		local version=${1:1}
+	else
+		local version="$1"
+	fi
+	local major=$(echo "$version" | cut -d '.' -f 1)
+	local minor=$(echo "$version" | cut -d '.' -f 2)
+	local patch=$(echo "$version" | cut -d '.' -f 3)
+	echo $((major * 1000000 + minor * 1000 + patch))
+}
+
+#endregion
+#--------------------------------------------------
 #region Command functions
 
 function command_help() {
 	echo "gah"
 	echo "  install <github_owner/github_repo_name | known_alias> [--tag=<git_tag>] [--use-default-names]"
 	echo "  aliases <show | refresh>"
+	echo "  update"
 	echo "  help"
 	echo "  version"
 	exit 0
@@ -334,9 +351,47 @@ function command_install() {
 	print_green "Done!"
 }
 
-function command_show_aliases() {
+function command_aliases_show() {
 	echo "Known aliases:"
 	jq -r '.aliases' "$(get_db_path)"
+}
+
+function command_aliases_refresh() {
+	print_blue "Refreshing aliases"
+	fetch_db
+	print_green "Done!"
+}
+
+function command_update() {
+	local gah_repo="marverix/gah"
+	local script_realpath=$(realpath "$0")
+
+	# Check if user has write permissions script_realpath
+	if [[ ! -w "$script_realpath" ]]; then
+		throw_error 15 "You don't have write permissions to $script_realpath.\nPlease run the script with sudo or change the permissions."
+	fi
+	
+	# Check gah latest tag
+	print_blue "Checking latest gah release..."
+	local tag=$(curl -s "$(get_fetch_release_info_url $gah_repo)" | jq -r '.tag_name')
+
+	# Compare versions
+	local new_number=$(semver_to_number "$tag")
+	local current_number=$(semver_to_number "$VERSION")
+	if [[ "$new_number" -le "$current_number" ]]; then
+		print_yellow "You are already using the latest version ($VERSION)."
+		print_green "Done!"
+		exit 0
+	else
+		print_yellow "Updating from $VERSION to $tag"
+	fi
+
+	# Download gah! script
+	curl -sL https://raw.githubusercontent.com/$gah_repo/refs/tags/$tag/gah -o "$script_realpath"
+	chmod +x "$script_realpath"
+	print_green "OK"
+
+	print_green "Done!"
 }
 
 #endregion
@@ -397,17 +452,20 @@ function main() {
 
 	elif [[ "$1" == "aliases" ]]; then
 		if [[ "$2" == "show" ]]; then
-			command_show_aliases
+			command_aliases_show
 
 		elif [[ "$2" == "refresh" ]]; then
-			fetch_db
+			command_aliases_refresh
 
 		else
 			throw_error 4 "Unknown subcommand.\n$HELP_STRING"
 		fi
 
+	elif [[ "$1" == "update" ]]; then
+		command_update
+
 	else
-		throw_error 5 "Unknown command '$command'.\n$HELP_STRING"
+		throw_error 5 "Unknown command '$1'.\n$HELP_STRING"
 	fi
 }
 
