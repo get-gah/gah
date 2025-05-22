@@ -1,0 +1,57 @@
+name: 📦 Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yaml
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get next version
+        id: semver
+        uses: ietf-tools/semver-action@v1
+        with:
+          token: ${{ github.token }}
+          branch: ${{ github.ref_name }}
+          noNewCommitBehavior: current
+          noVersionBumpBehavior: patch
+
+      - name: Bump version
+        uses: mingjun97/file-regex-replace@v1
+        with:
+          regex: '^VERSION="[0-9\.]+"'
+          replacement: 'VERSION="${{ steps.semver.outputs.next }}"'
+          include: 'gah'
+          flags: 'g'
+
+      - name: Commit and push
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: gah
+          message: "version: Update to ${{ steps.semver.outputs.next }} [skip ci]"
+          author_name: github-actions[bot]
+          author_email: github-actions[bot]@users.noreply.github.com
+
+      - name: Create Changelog
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ github.token }}
+          fromTag: ${{ github.ref_name }}
+          toTag: ${{ steps.semver.outputs.current }}
+          writeToFile: false
+          excludeTypes: build,docs,style,version
+          includeInvalidCommits: true
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ github.token }}
+          tag: ${{ steps.semver.outputs.next }}
+          body: ${{ steps.changelog.outputs.changes }}
