@@ -22,6 +22,9 @@ jobs:
           noNewCommitBehavior: current
           noVersionBumpBehavior: patch
 
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Bump version
         uses: mingjun97/file-regex-replace@v1
         with:
