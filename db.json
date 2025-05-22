@@ -14,6 +14,7 @@
         "jq": "jqlang/jq",
         "k9s": "derailed/k9s",
         "kops": "kubernetes/kops",
+        "lazydocker": "jesseduffield/lazydocker",
         "lazygit": "jesseduffield/lazygit",
         "rg": "BurntSushi/ripgrep",
         "terragrunt": "gruntwork-io/terragrunt",
