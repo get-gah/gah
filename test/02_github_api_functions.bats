@@ -479,3 +479,53 @@ https://github.com/kubernetes/kops/releases/download/v1.30.2/protokube-linux-arm
 	assert_success
 	assert_output "https://github.com/trufflesecurity/trufflehog/releases/download/v3.84.2/trufflehog_3.84.2_darwin_arm64.tar.gz"
 }
+
+# --- sops tests ---
+
+@test "find_download_url should print match for the correct asset [sops/linux/amd64]" {
+	stub uname \
+		"-s : echo 'Linux'" \
+		"-m : echo 'x86_64'"
+	
+	DEBUG=""
+	run find_download_url "$DIR/test/fixtures/releases/sops/release.json"
+
+	assert_success
+	assert_output "https://github.com/getsops/sops/releases/download/v3.10.2/sops-v3.10.2.linux.amd64"
+}
+
+@test "find_download_url should print match for the correct asset [sops/linux/arm64]" {
+	stub uname \
+		"-s : echo 'Linux'" \
+		"-m : echo 'aarch64'"
+	
+	DEBUG=""
+	run find_download_url "$DIR/test/fixtures/releases/sops/release.json"
+
+	assert_success
+	assert_output "https://github.com/getsops/sops/releases/download/v3.10.2/sops-v3.10.2.linux.arm64"
+}
+
+@test "find_download_url should print match for the correct asset [sops/macos/amd64]" {
+	stub uname \
+		"-s : echo 'Darwin'" \
+		"-m : echo 'x86_64'"
+	
+	DEBUG=""
+	run find_download_url "$DIR/test/fixtures/releases/sops/release.json"
+
+	assert_success
+	assert_output "https://github.com/getsops/sops/releases/download/v3.10.2/sops-v3.10.2.darwin.amd64"
+}
+
+@test "find_download_url should print match for the correct asset [sops/macos/arm64]" {
+	stub uname \
+		"-s : echo 'Darwin'" \
+		"-m : echo 'aarch64'"
+	
+	DEBUG=""
+	run find_download_url "$DIR/test/fixtures/releases/sops/release.json"
+
+	assert_success
+	assert_output "https://github.com/getsops/sops/releases/download/v3.10.2/sops-v3.10.2.darwin.arm64"
+}
