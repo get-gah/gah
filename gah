@@ -11,7 +11,7 @@ set -e
 #--------------------------------------------------
 #region Constants
 
-VERSION="v0.5.0"
+VERSION="v1.0.1"
 HELP_STRING="Type 'gah help' to show help."
 
 if [[ -z "$GAH_CACHE_DIR" ]]; then
