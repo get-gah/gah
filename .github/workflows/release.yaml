@@ -32,10 +32,10 @@ jobs:
       - name: Bump version
         uses: mingjun97/file-regex-replace@v1
         with:
-          regex: '^VERSION="[0-9\.]+"'
+          regex: '^VERSION="v?[0-9\.]+"'
           replacement: 'VERSION="${{ steps.semver.outputs.next }}"'
           include: 'gah'
-          flags: 'g'
+          flags: 'gm'
 
       - name: Commit and push
         uses: EndBug/add-and-commit@v9
