@@ -28,10 +28,35 @@ Type `gah help` to see the list of available commands.
 
 ```text
 gah
-  install <github_owner/github_repo_name | known_alias> [<git_tag>]
-  show <aliases>
+  install <github_owner/github_repo_name | known_alias> [--tag=<git_tag>] [--use-default-names]
+  aliases <show | refresh>
   help
   version
+```
+
+### Using known aliases
+
+`gah` has a predefined set of aliases for some popular apps. You can use these aliases to install the apps without specifying the full GitHub repository name.
+To see the list of available aliases, type `gah aliases show`.
+
+The file `db.json` with aliases is located in [db branch](https://github.com/marverix/gah/blob/db/db.json). Feel free to add your own aliases or suggest new ones by creating a pull request.
+
+The file is cached locally for 24h.
+
+### Specifying the tag
+
+You can specify the tag of the release you want to install. If you don't specify a tag, the latest release will be installed.
+
+```bash
+gah install getsops/sops --tag=v3.10.2
+```
+
+### Using default names
+
+If you want to use the default names for the installed binaries, you can use the `--use-default-names` flag. This is specially useful for unattended installations, where you don't want to be prompted for the name of the binary.
+
+```bash
+gah install getsops/sops --use-default-names
 ```
 
 ## Examples

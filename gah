@@ -83,17 +83,17 @@ REGEXP_SKIP_FILES="^(license|readme|changelog).*|.*\.(md|txt)$"
 function get_os() {
 	print_debug "Checking OS type"
 	case $(uname -s) in
-		Linux*) echo "linux" ;;
-		Darwin*) echo "macos" ;;
-		*) echo "NOT_SUPPORTED" ;;
+	Linux*) echo "linux" ;;
+	Darwin*) echo "macos" ;;
+	*) echo "NOT_SUPPORTED" ;;
 	esac
 }
 
 function get_os_regexp_part() {
 	case $(get_os) in
-		linux) echo '[._-](unknown[._-])?(linux|linux-gnu|linux-musl)' ;;
-		macos) echo '[._-](apple[._-])?(darwin|macos)' ;;
-		*) throw_error 10 "Your OS type is not supported" ;;
+	linux) echo '[._-](unknown[._-])?(linux|linux-gnu|linux-musl)' ;;
+	macos) echo '[._-](apple[._-])?(darwin|macos)' ;;
+	*) throw_error 10 "Your OS type is not supported" ;;
 	esac
 }
 
@@ -102,26 +102,26 @@ function get_arch() {
 	case $(uname -m) in
 		x86_64|amd64) echo "amd64" ;;
 		arm64|aarch64|armv8) echo "arm64" ;;
-		*) echo "NOT_SUPPORTED" ;;
+	*) echo "NOT_SUPPORTED" ;;
 	esac
 }
 
 function get_arch_regexp_part() {
 	case $(get_arch) in
-		amd64) echo '[._-](amd64|x86_64|universal)' ;;
-		arm64) echo '[._-](arm64|aarch64|universal)' ;;
-		*) throw_error 11 "Your CPU/OS architecture is not supported" ;;
+	amd64) echo '[._-](amd64|x86_64|universal)' ;;
+	arm64) echo '[._-](arm64|aarch64|universal)' ;;
+	*) throw_error 11 "Your CPU/OS architecture is not supported" ;;
 	esac
 }
 
 function get_filename_regexp() {
-	local name_regexp_part='[a-z][a-z0-9_-]+?'
+	local name_regexp_part='([a-z][a-z0-9_-]+?)'
 	local version_regexp_part='([_-]v?[0-9.]+)?'
 	local os_regexp_part=$(get_os_regexp_part)
 	local arch_regexp_part=$(get_arch_regexp_part)
 
 	local regexp="${name_regexp_part}${version_regexp_part}"
-	regexp+="(${os_regexp_part}${arch_regexp_part}|${arch_regexp_part}${os_regexp_part})"	
+	regexp+="(${os_regexp_part}${arch_regexp_part}|${arch_regexp_part}${os_regexp_part})"
 	regexp+="(${EXT_ALL_ARCHIVES})?"
 	echo "$regexp"
 }
@@ -170,7 +170,7 @@ function find_download_url() {
 	# First try to find the matching file in the assets
 	local regexp=$(get_name_regexp)
 	local found="false"
-	
+
 	print_debug "Regexp: $regexp"
 
 	for name in $(jq -r '.assets[].name' "$release_json"); do
@@ -194,7 +194,7 @@ function find_download_url() {
 
 	regexp=$(get_md_url_regexp)
 	print_debug "URL Regexp: $regexp"
-	
+
 	jq -r '.body' "$release_json" | while read -r line; do
 		lower_line=$(echo "$line" | tr '[A-Z]' '[a-z]')
 		if [[ "$lower_line" =~ $regexp ]]; then
@@ -236,8 +236,8 @@ function get_known_alias() {
 
 function command_help() {
 	echo "gah"
-	echo "  install <github_owner/github_repo_name | known_alias> [<git_tag>]"
-	echo "  show <aliases>"
+	echo "  install <github_owner/github_repo_name | known_alias> [--tag=<git_tag>] [--use-default-names]"
+	echo "  aliases <show | refresh>"
 	echo "  help"
 	echo "  version"
 	exit 0
@@ -255,9 +255,13 @@ function command_install() {
 	# Change to temporary directory
 	cd $tmp_dir
 
+	local repo="$1"
+	local tag="$2"
+	local use_default_names="$3"
+
 	# Fetch the release information
-	print_blue "Fetching release info for: $1 [$2]"
-	fetch_release_info "$1" "$2"
+	print_blue "Fetching release info for: $repo [$tag]"
+	fetch_release_info "$repo" "$tag"
 
 	# Find the download URL
 	local download_url=$(find_download_url "$tmp_dir/release.json")
@@ -306,12 +310,21 @@ function command_install() {
 			continue
 		fi
 
+		local regexp=$(get_name_regexp)
+		if [[ "$file_name" =~ $regexp ]]; then
+			file_name="${BASH_REMATCH[1]}"
+		fi
+
 		print_blue "Installing: $file_name"
 
-		print_yellow "Give a new name or keep '$file_name'? (Leave empty to keep the same)"
-		read -p "New name: " new_name
-		if [[ -n "$new_name" ]]; then
-			file_name="$new_name"
+		if [[ -n "$use_default_names" ]]; then
+			print_yellow "Using default name: $file_name"
+		else
+			print_yellow "Give a new name or keep '$file_name'? (Leave empty to keep the same)"
+			read -p "New name: " new_name
+			if [[ -n "$new_name" ]]; then
+				file_name="$new_name"
+			fi
 		fi
 
 		mv "$bin_file" "$GAH_INSTALL_DIR/$file_name"
@@ -333,6 +346,7 @@ function main() {
 	# Initialize
 	mkdir -p "$GAH_CACHE_DIR"
 
+	# Handle commands
 	if [[ -z "$1" || "$1" == "help" ]]; then
 		command_help
 
@@ -354,19 +368,39 @@ function main() {
 			repo="$(get_known_alias $2)"
 
 		else
-			throw_error 3 "Given string '$2' is not a known alias.\nTo see known aliases type 'gah show aliases'."
+			throw_error 3 "Given string '$2' is not a known alias.\nTo see known aliases type 'gah aliases show'."
 		fi
 
-		tag="$3"
-		if [[ -z "$3" ]]; then
-			tag=latest
-		fi
+		# Default values for optional parameters
+		local tag="latest"
+		local use_default_names=""
 
-		command_install "$repo" "$tag"
+		# Parse optional parameters
+		while [[ $# -gt 0 ]]; do
+			case "$3" in
+			--tag=*)
+				tag="${3#--tag=}"
+				shift 1
+				;;
+			--use-default-names)
+				use_default_names="1"
+				shift 1
+				;;
+			*)
+				break
+				;;
+			esac
+		done
 
-	elif [[ "$1" == "show" ]]; then
-		if [[ "$2" == "aliases" ]]; then
+		# Use the parsed tag and default_names
+		command_install "$repo" "$tag" "$use_default_names"
+
+	elif [[ "$1" == "aliases" ]]; then
+		if [[ "$2" == "show" ]]; then
 			command_show_aliases
+
+		elif [[ "$2" == "refresh" ]]; then
+			fetch_db
 
 		else
 			throw_error 4 "Unknown subcommand.\n$HELP_STRING"
