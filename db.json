@@ -22,6 +22,7 @@
         "terragrunt": "gruntwork-io/terragrunt",
         "tofu": "opentofu/opentofu",
         "trufflehog": "trufflesecurity/trufflehog",
+        "vagrant": "hashicorp/vagrant",
         "yq": "mikefarah/yq"
     }
 }
