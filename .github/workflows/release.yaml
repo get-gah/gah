@@ -12,6 +12,10 @@ jobs:
   release:
     needs: test
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+
     steps:
       - name: Get next version
         id: semver
