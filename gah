@@ -11,10 +11,21 @@ set -e
 #--------------------------------------------------
 #region Constants
 
-VERSION="0.4.2"
+VERSION="0.5.0"
 HELP_STRING="Type 'gah help' to show help."
 
-GAH_CACHE_DIR="$HOME/.cache/gah"
+if [[ -z "$GAH_CACHE_DIR" ]]; then
+	GAH_CACHE_DIR="$HOME/.cache/gah"
+fi
+
+if [[ -z "$GAH_INSTALL_DIR" ]]; then
+	if [[ "$EUID" -ne 0 ]]; then
+		GAH_INSTALL_DIR="$HOME/.local/bin"
+	else
+		GAH_INSTALL_DIR="/usr/local/bin"
+	fi
+fi
+
 GAH_DB_FILE="$GAH_CACHE_DIR/db.json"
 
 #endregion
@@ -230,7 +241,7 @@ function command_help() {
 	echo "  help"
 	echo "  version"
 	exit 0
-}vagrant
+}
 
 function command_version() {
 	echo "gah v$VERSION"
@@ -303,7 +314,7 @@ function command_install() {
 			file_name="$new_name"
 		fi
 
-		mv "$bin_file" "$HOME/.local/bin/$file_name"
+		mv "$bin_file" "$GAH_INSTALL_DIR/$file_name"
 		print_green "Installed: $file_name"
 	done
 

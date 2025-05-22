@@ -54,6 +54,15 @@ gah install argocd v2.0.3
 gah install hashicorp/vagrant
 ```
 
+## Configuration
+
+Here is the list of supported environment variables:
+
+Name | Description | Default
+---|---|---
+`GAH_INSTALL_DIR` | The directory where the gah will install your applications. This directory must be in your `PATH` environment variable. | `~/.local/bin`, for superuser it will be `/usr/local/bin`
+`GAH_CACHE_DIR` | The directory where cache will be stored. | `~/.cache/gah`
+
 ## License
 
 gah is licensed under the GPL-3.0 License. See [LICENSE](./LICENSE) for the full license text.

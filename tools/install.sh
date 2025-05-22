@@ -8,6 +8,15 @@
 # Pipeline mode
 set -e
 
+# Configuration
+if [[ -z "$GAH_INSTALL_DIR" ]]; then
+	if [[ $EUID -ne 0 ]]; then
+		GAH_INSTALL_DIR="$HOME/.local/bin"
+	else
+		GAH_INSTALL_DIR="/usr/local/bin"
+	fi
+fi
+
 #--------------------------------------------------
 #region Utils
 function print_blue() {
@@ -52,14 +61,14 @@ require_command curl
 require_command jq
 
 # Ensure ~/.local/bin exists
-print_blue "Ensuring ~/.local/bin exists..."
-mkdir -p ~/.local/bin
+print_blue "Ensuring $GAH_INSTALL_DIR exists..."
+mkdir -p "$GAH_INSTALL_DIR"
 print_green "OK"
 
 # Check if ~/.local/bin is in PATH
-print_blue "Checking if ~/.local/bin is in PATH..."
-if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-	print_yellow "WARNING: ~/.local/bin is not in PATH. gah will not work if ~/.local/bin is not in PATH."
+print_blue "Checking if $GAH_INSTALL_DIR is in PATH..."
+if [[ ":$PATH:" != *":$GAH_INSTALL_DIR:"* ]]; then
+	print_yellow "WARNING: $GAH_INSTALL_DIR is not in PATH. gah will not work if $GAH_INSTALL_DIR is not in PATH."
 else
 	print_green "OK, looks good!"
 fi
@@ -71,8 +80,8 @@ print_green "OK, latest tag is $tag"
 
 # Download gah! script
 print_blue "Downloading gah $tag script..."
-curl -sL https://raw.githubusercontent.com/marverix/gah/refs/tags/$tag/gah -o ~/.local/bin/gah
-chmod +x ~/.local/bin/gah
+curl -sL https://raw.githubusercontent.com/marverix/gah/refs/tags/$tag/gah -o "$GAH_INSTALL_DIR/gah"
+chmod +x "$GAH_INSTALL_DIR/gah"
 print_green "OK"
 
 print_green "Done!"
