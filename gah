@@ -14,6 +14,10 @@ set -e
 VERSION="v1.1.0"
 HELP_STRING="Type 'gah help' to show help."
 
+if [ ! -t 0 ]; then
+	UNATTENDED="true"
+fi
+
 if [[ -z "$GAH_CACHE_DIR" ]]; then
 	GAH_CACHE_DIR="$HOME/.cache/gah"
 fi
@@ -274,7 +278,6 @@ function command_install() {
 
 	local repo="$1"
 	local tag="$2"
-	local use_default_names="$3"
 
 	# Fetch the release information
 	print_blue "Fetching release info for: $repo [$tag]"
@@ -286,14 +289,24 @@ function command_install() {
 
 	# Check if several download URLs were found
 	if [[ $(echo "$download_url" | wc -l) -gt 1 ]]; then
-		print_yellow "Several download URLs were found which match your OS and arch. Please select one:"
-		select url in $download_url; do
-			download_url=$url
-			break
-		done
+		print_yellow "Several download URLs were found which match your OS and arch."
 
-		if [[ -z "$download_url" ]]; then
-			throw_error 14 "No download URL was selected"
+		if [[ "$UNATTENDED" == "true" ]]; then
+			# Select the first one
+			download_url=$(echo "$download_url" | head -n 1)
+			print_yellow "Unattended mode, so using the first download URL: $download_url"
+
+		else
+			print_yellow "Please select one:"
+			select url in $download_url; do
+				download_url=$url
+				break
+			done
+
+			if [[ -z "$download_url" ]]; then
+				throw_error 14 "No download URL was selected"
+			fi
+
 		fi
 	fi
 
@@ -334,7 +347,7 @@ function command_install() {
 
 		print_blue "Installing: $file_name"
 
-		if [[ -n "$use_default_names" ]]; then
+		if [[ "$UNATTENDED" == "true" ]]; then
 			print_yellow "Using default name: $file_name"
 		else
 			print_yellow "Give a new name or keep '$file_name'? (Leave empty to keep the same)"
@@ -428,7 +441,6 @@ function main() {
 
 		# Default values for optional parameters
 		local tag="latest"
-		local use_default_names=""
 
 		# Parse optional parameters
 		while [[ $# -gt 0 ]]; do
@@ -437,8 +449,8 @@ function main() {
 				tag="${3#--tag=}"
 				shift 1
 				;;
-			--use-default-names)
-				use_default_names="1"
+			--unattended)
+				UNATTENDED="true"
 				shift 1
 				;;
 			*)
@@ -448,7 +460,7 @@ function main() {
 		done
 
 		# Use the parsed tag and default_names
-		command_install "$repo" "$tag" "$use_default_names"
+		command_install "$repo" "$tag"
 
 	elif [[ "$1" == "aliases" ]]; then
 		if [[ "$2" == "show" ]]; then

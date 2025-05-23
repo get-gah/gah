@@ -51,12 +51,20 @@ You can specify the tag of the release you want to install. If you don't specify
 gah install getsops/sops --tag=v3.10.2
 ```
 
-### Using default names
+### Unattended mode
 
-If you want to use the default names for the installed binaries, you can use the `--use-default-names` flag. This is specially useful for unattended installations, where you don't want to be prompted for the name of the binary.
+`gah` will try to detect if your terminal supports input or not. To force this behavior you can either use the `--unattended` flag or set env var `UNATTENDED=true`.
+This will skip the confirmation prompt and install the app without asking for any input.
 
 ```bash
-gah install getsops/sops --use-default-names
+gah install getsops/sops --unattended
+```
+
+or
+
+```bash
+export UNATTENDED=true
+gah install getsops/sops
 ```
 
 ### Update gah
