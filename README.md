@@ -103,6 +103,10 @@ Name | Description | Default
 `GAH_INSTALL_DIR` | The directory where the gah will install your applications. This directory must be in your `PATH` environment variable. | `~/.local/bin`, for superuser it will be `/usr/local/bin`
 `GAH_CACHE_DIR` | The directory where cache will be stored. | `~/.cache/gah`
 
+## Using in GitHub Actions
+
+There is an official GitHub Action to [setup gah](https://github.com/marverix/setup-gah).
+
 ## License
 
 gah is licensed under the GPL-3.0 License. See [LICENSE](./LICENSE) for the full license text.
