@@ -203,6 +203,7 @@ function find_download_url() {
 		lower_line=$(echo "$line" | tr '[A-Z]' '[a-z]')
 		if [[ "$lower_line" =~ $regexp ]]; then
 			print_debug "  $line ... Match!"
+			found="true"
 			line="${BASH_REMATCH[0]}"
 			line=${line:1}
 			line=${line::-1}
@@ -211,6 +212,13 @@ function find_download_url() {
 			print_debug "  $line ... Doesn't match"
 		fi
 	done
+
+	# If asset matched, return
+	if [[ "$found" == "true" ]]; then
+		return
+	fi
+
+	print_debug "No download URLs found!"
 }
 
 function find_digest_for_url() {
@@ -331,6 +339,13 @@ function command_install() {
 
 	# Find the download URL
 	local download_url=$(find_download_url "$tmp_dir/release.json")
+
+	if [[ -z "$download_url" ]]; then
+		local os=$(get_os)
+		local arch=$(get_arch)
+		throw_error 18 "Could not find any assets matching your OS ($os) and Arch ($arch)."
+	fi
+
 	print_debug "Download URL:\n$download_url"
 
 	# Check if several download URLs were found
