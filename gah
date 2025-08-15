@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 # gah! Get App Homie!
 #
@@ -60,7 +60,7 @@ function throw_error() {
 }
 
 function print_debug() {
-	if [[ "$DEBUG" == "true" ]]; then
+	if [[ "$GAH_DEBUG" == "true" ]]; then
 		echo -e "[DEBUG] $1" >&2
 	fi
 }
