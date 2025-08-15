@@ -6,6 +6,7 @@
         "duckdb": "duckdb/duckdb",
         "duf": "muesli/duf",
         "fd": "sharkdp/fd",
+        "fx": "antonmedv/fx",
         "fzf": "junegunn/fzf",
         "genact": "svenstaro/genact",
         "gh": "cli/cli",
