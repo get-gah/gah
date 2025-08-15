@@ -23,6 +23,7 @@
         "tofu": "opentofu/opentofu",
         "trufflehog": "trufflesecurity/trufflehog",
         "vagrant": "hashicorp/vagrant",
+        "yazi": "sxyazi/yazi",
         "yq": "mikefarah/yq",
         "zoxide": "ajeetdsouza/zoxide"
     }
