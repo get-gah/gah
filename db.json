@@ -2,6 +2,7 @@
     "aliases": {
         "argocd": "argoproj/argo-cd",
         "bottom": "clementtsang/bottom",
+        "dive": "wagoodman/dive",
         "duckdb": "duckdb/duckdb",
         "duf": "muesli/duf",
         "fd": "sharkdp/fd",
