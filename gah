@@ -213,6 +213,52 @@ function find_download_url() {
 	done
 }
 
+function find_digest_for_url() {
+	local release_json="$1"
+	local download_url="$2"
+
+	print_debug "Finding digest for URL: $url"
+
+	# Check if the URL is in the assets
+	local digest=$(jq -r --arg url "$download_url" '.assets[] | select(.browser_download_url == $url) | .digest' "$release_json")
+
+	if [[ "$digest" == "null" ]]; then
+		print_debug "No digest found for URL: $download_url"
+		echo ""
+	else
+		print_debug "Found digest in body: $digest"
+		echo "$digest"
+	fi
+}
+
+function verify_digest() {
+	local file="$1"
+	local digest="$2"
+
+	print_debug "Verifying digest for file: $file"
+
+	# Check if the file exists
+	if [[ ! -f "$file" ]]; then
+		throw_error 16 "File '$file' does not exist. Cannot verify digest."
+	fi
+
+	# Split the digest into algorithm and value
+	local algorithm=$(echo "$digest" | cut -d ':' -f 1)
+	local expected_value=$(echo "$digest" | cut -d ':' -f 2)
+
+	print_blue "Verifying digest $algorithm $expected_value ..."
+
+	# Calculate the actual digest of the file
+	local actual_value=$(openssl "$algorithm" -r "$file" | cut -d ' ' -f 1)
+
+	# Compare the actual and expected values
+	if [[ "$actual_value" != "$expected_value" ]]; then
+		throw_error 17 "Digest $algorithm verification failed for file '$file'!\nExpected: $expected_value\nActual:   $actual_value"
+	fi
+
+	print_green "Digest verification succeeded!"
+}
+
 #endregion
 #--------------------------------------------------
 #region DB functions
@@ -313,9 +359,19 @@ function command_install() {
 	# Get a filename
 	local filename=$(basename "$download_url")
 
+	# Find digest
+	local digest=$(find_digest_for_url "$tmp_dir/release.json" "$download_url")
+
 	# Download the file
 	print_blue "Downloading: $filename"
 	curl -L --progress-bar -o "$filename" "$download_url"
+
+	# Verify the download if digest is available
+	if [[ -n "$digest" ]]; then
+		verify_digest "$filename" "$digest"
+	else
+		print_yellow "GitHub Release did not provide digest for $filename. Skipping verification."
+	fi
 
 	# Extract if needed
 	if [[ "$filename" =~ $REGEXP_EXT_TAR ]]; then

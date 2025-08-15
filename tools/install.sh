@@ -59,6 +59,7 @@ require_command tar
 require_command unzip
 require_command curl
 require_command jq
+require_command openssl
 
 # Ensure ~/.local/bin exists
 print_blue "Ensuring $GAH_INSTALL_DIR exists..."

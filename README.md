@@ -4,15 +4,16 @@
 
 Features:
 
-- Downloads the latest or given release of an app from GitHub
-- Automatically selects matching binary for the current platform
+- 🏷 Downloads the latest or given release of an app from GitHub
+- 🎯 Automatically selects matching binary for the current platform
 
   - Supported OS: Linux and MacOS
   - Supported architectures: x64 and ARM64
 
-- Supports multiple matching apps in a single GitHub Release
-- Supports archived (`.zip`, `.tar.gz`, `.tar.bz2`, `.tar.xz`) and single binary releases
-- Has own base of predefined aliases for GitHub repositories (PRs are welcome!)
+- 🎳 Supports multiple matching apps in a single GitHub Release
+- 📤 Supports archived (`.zip`, `.tar.gz`, `.tar.bz2`, `.tar.xz`) and single binary releases
+- 🗃 Has own base of predefined aliases for GitHub repositories (PRs are welcome!)
+- 🔐 Verifies downloaded files using provided by `openssl` against [asset's digest value](https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#get-a-release-asset)
 
 ## Installation
 
@@ -84,7 +85,7 @@ gah install gh
 ### Install specific version of argocd
 
 ```bash
-gah install argocd v2.0.3
+gah install argocd --tag=v2.0.3
 ```
 
 ### Install an app that is not in the predefined aliases
