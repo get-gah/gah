@@ -1,5 +1,6 @@
 {
     "aliases": {
+        "age": "FiloSottile/age",
         "argocd": "argoproj/argo-cd",
         "bottom": "clementtsang/bottom",
         "dive": "wagoodman/dive",
