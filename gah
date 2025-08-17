@@ -96,7 +96,7 @@ function get_os() {
 function get_os_regexp_part() {
 	case $(get_os) in
 	linux) echo '[._-](unknown[._-])?(linux|linux-gnu|linux-musl)' ;;
-	macos) echo '[._-](apple[._-])?(darwin|macos)' ;;
+	macos) echo '[._-](apple[._-])?(darwin|macos|osx)' ;;
 	*) throw_error 10 "Your OS type is not supported" ;;
 	esac
 }
@@ -112,7 +112,7 @@ function get_arch() {
 
 function get_arch_regexp_part() {
 	case $(get_arch) in
-	amd64) echo '[._-](amd64|x86_64|universal)' ;;
+	amd64) echo '[._-](amd64|x86_64|x64|universal)' ;;
 	arm64) echo '[._-](arm64|aarch64|universal)' ;;
 	*) throw_error 11 "Your CPU/OS architecture is not supported" ;;
 	esac
