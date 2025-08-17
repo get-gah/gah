@@ -12,5 +12,15 @@
   "commitConvention": "angular",
   "commitType": "docs",
   "skipCi": true,
-  "contributors": []
+  "contributors": [
+    {
+      "login": "rverenich",
+      "name": "Roman Verenich",
+      "avatar_url": "https://avatars.githubusercontent.com/u/78074120?v=4",
+      "profile": "https://github.com/rverenich",
+      "contributions": [
+        "data"
+      ]
+    }
+  ]
 }
