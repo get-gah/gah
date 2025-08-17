@@ -1,9 +1,9 @@
 #!/usr/bin/bash
 
-# gah! Get App Homie!
+# gah - GitHub Releases App Installer
 #
 # @author Marek `marverix` Sierociński
-# @license GNU GPLv3
+# @license Apache-2.0
 
 # Pipeline mode
 set -e

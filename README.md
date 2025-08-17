@@ -1,5 +1,13 @@
 ![gah! logo](./_static/logo.svg)
 
+
+![GitHub top language](https://img.shields.io/github/languages/top/marverix/gah?color=d8d440&style=flat-square)
+![GitHub file size in bytes](https://img.shields.io/github/size/marverix/gah/gah?color=db805a&style=flat-square)
+[![GitHub Release](https://img.shields.io/github/v/release/marverix/gah?color=db5b92&style=flat-square)](https://github.com/marverix/gah/releases)
+[![GitHub License](https://img.shields.io/github/license/marverix/gah?color=b95fda&style=flat-square)](https://github.com/marverix/gah/blob/master/LICENSE)
+[![All Contributors](https://img.shields.io/github/all-contributors/marverix/gah?color=b1abea&style=flat-square)](#contributors)
+
+
 `gah` is an GitHub Releases app installer, that **DOES NOT REQUIRE SUDO**! It is a simple bash script that downloads the latest release of an app from GitHub and installs it in `~/.local/bin`. It is designed to be used with apps that are distributed as a single binary file.
 
 Features:
@@ -129,4 +137,4 @@ Thanks to all contributors:
 
 ## License
 
-gah is licensed under the GPL-3.0 License. See [LICENSE](./LICENSE) for the full license text.
+gah is licensed under the Apache-2.0 License. See [LICENSE](./LICENSE) for the full license text.
