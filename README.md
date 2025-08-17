@@ -10,7 +10,11 @@
 
 `gah` is an GitHub Releases app installer, that **DOES NOT REQUIRE SUDO**! It is a simple bash script that downloads the latest release of an app from GitHub and installs it in `~/.local/bin`. It is designed to be used with apps that are distributed as a single binary file.
 
-Features:
+## Motivation
+
+Nowadays more and more command-line tools and applications are distributed via GitHub Releases. The installation process looks always the same: you go to the release page, expand assets, find the right file for your platform (which may be very frustrating, especially when there are 200+ assets and very often developers use different naming conventions - e.g. `myapp-linux-amd64`, `myapp_linux_x64`, `myapp-unknown-linux-gnu-x86_64`, etc.), download it, unpack it, move it to `~/.local/bin`, execute `chmod +x` on it and don't forget to clean up afterwards. For me, it was a hassle. Each time I needed to go thru the process again I was doing "gah! not again!". So I thought, why not automate this process? In fact, I love automation and RegExp. And so `gah` was born.
+
+## Features
 
 - 🏷 Downloads the latest or given release of an app from GitHub
 - 🎯 Automatically selects matching binary for the current platform
