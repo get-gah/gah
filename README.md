@@ -107,6 +107,19 @@ Name | Description | Default
 
 There is an official GitHub Action to [setup gah](https://github.com/marverix/setup-gah).
 
+## Contributors
+
+Thanks to all contributors:
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
 ## License
 
 gah is licensed under the GPL-3.0 License. See [LICENSE](./LICENSE) for the full license text.
