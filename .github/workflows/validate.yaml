@@ -1,0 +1,22 @@
+name: 📐 Validate
+
+on:
+  push:
+    branches:
+      - db
+  pull_request: 
+    branches:
+      - db
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install the JSON Schema CLI
+        uses: sourcemeta/jsonschema@v11.1.1
+
+      - name: Validate db.json
+        run: jsonschema validate schema.json db.json
