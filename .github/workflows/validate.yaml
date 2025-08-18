@@ -9,7 +9,7 @@ on:
       - db
 
 jobs:
-  test:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

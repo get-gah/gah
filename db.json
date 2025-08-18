@@ -18,6 +18,7 @@
     "gping": "orf/gping",
     "helm": "helm/helm",
     "helmfile": "helmfile/helmfile",
+    "jsonschema": "sourcemeta/jsonschema",
     "jq": "jqlang/jq",
     "k9s": "derailed/k9s",
     "kind": "kubernetes-sigs/kind",
