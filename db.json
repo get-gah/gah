@@ -25,7 +25,6 @@
     "kops": "kubernetes/kops",
     "lazydocker": "jesseduffield/lazydocker",
     "lazygit": "jesseduffield/lazygit",
-    "ripgrep": "BurntSushi/ripgrep",
     "sops": "getsops/sops",
     "terragrunt": "gruntwork-io/terragrunt",
     "tofu": "opentofu/opentofu",
