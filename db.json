@@ -28,7 +28,6 @@
     "sops": "getsops/sops",
     "terragrunt": "gruntwork-io/terragrunt",
     "tofu": "opentofu/opentofu",
-    "trufflehog": "trufflesecurity/trufflehog",
     "vagrant": "hashicorp/vagrant",
     "yazi": "sxyazi/yazi",
     "yq": "mikefarah/yq",
