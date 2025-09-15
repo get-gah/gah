@@ -123,10 +123,16 @@ function get_filename_regexp() {
 	local version_regexp_part='([_-]v?[0-9.]+)?'
 	local os_regexp_part=$(get_os_regexp_part)
 	local arch_regexp_part=$(get_arch_regexp_part)
+	local padding_regexp='([._-][a-z0-9]+)*'
 
-	local regexp="${name_regexp_part}${version_regexp_part}"
+	local regexp="${name_regexp_part}"
+	regexp+="${version_regexp_part}"
+	regexp+="${padding_regexp}"
+
 	regexp+="(${os_regexp_part}${arch_regexp_part}|${arch_regexp_part}${os_regexp_part})"
+	regexp+="${padding_regexp}"
 	regexp+="(${EXT_ALL_ARCHIVES})?"
+
 	echo "$regexp"
 }
 
