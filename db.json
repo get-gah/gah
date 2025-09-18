@@ -25,6 +25,7 @@
     "kops": "kubernetes/kops",
     "lazydocker": "jesseduffield/lazydocker",
     "lazygit": "jesseduffield/lazygit",
+    "odin": "odin-lang/Odin",
     "sops": "getsops/sops",
     "terragrunt": "gruntwork-io/terragrunt",
     "tofu": "opentofu/opentofu",
