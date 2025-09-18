@@ -142,6 +142,8 @@ function get_md_url_regexp() {
 #--------------------------------------------------
 #region GitHub API functions
 
+REGEXP_NAME_FROM_HTML_URL='^https:\/\/[^/]+\/[^/]+\/([^/]+)'
+
 function get_fetch_release_info_url() {
 	local suffix="latest"
 	if [[ -n "$2" && "$2" != "latest" ]]; then
@@ -166,6 +168,14 @@ function fetch_release_info() {
 
 	local release_name=$(jq -r '.name' release.json)
 	print_green "Found release: $release_name"
+}
+
+function get_repo_name() {
+	local release_json="$1"
+	local html_url=$(jq -r '.html_url' "$release_json")
+	if [[ "$html_url" =~ $REGEXP_NAME_FROM_HTML_URL ]]; then
+		echo "${BASH_REMATCH[1]}"
+	fi
 }
 
 function find_download_url() {
