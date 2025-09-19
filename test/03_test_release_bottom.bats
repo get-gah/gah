@@ -29,7 +29,8 @@ teardown() {
 	run find_download_url "$DIR/test/fixtures/releases/bottom/release.json"
 
 	assert_success
-	assert_output "https://github.com/ClementTsang/bottom/releases/download/0.11.1/bottom_x86_64-unknown-linux-gnu.tar.gz
+	assert_output "https://github.com/ClementTsang/bottom/releases/download/0.11.1/bottom_x86_64-unknown-linux-gnu-2-17.tar.gz
+https://github.com/ClementTsang/bottom/releases/download/0.11.1/bottom_x86_64-unknown-linux-gnu.tar.gz
 https://github.com/ClementTsang/bottom/releases/download/0.11.1/bottom_x86_64-unknown-linux-musl.tar.gz"
 }
 

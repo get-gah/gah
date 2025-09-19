@@ -82,6 +82,7 @@ EXT_ALL_ARCHIVES="$EXT_ZIP|$EXT_TAR"
 REGEXP_EXT_ZIP=".+(${EXT_ZIP})$"
 REGEXP_EXT_TAR=".+(${EXT_TAR})$"
 
+REGEXP_IGNORE_PATTERN="(linux-android)"
 REGEXP_SKIP_FILES="^(license|readme|changelog).*|.*\.(md|txt)$"
 
 function get_os() {
@@ -123,9 +124,11 @@ function get_filename_regexp() {
 	local version_regexp_part='([_-]v?[0-9.]+)?'
 	local os_regexp_part=$(get_os_regexp_part)
 	local arch_regexp_part=$(get_arch_regexp_part)
+	local suffix_regexp_part='([_-][a-z0-9_-]+)?'
 
 	local regexp="${name_regexp_part}${version_regexp_part}"
 	regexp+="(${os_regexp_part}${arch_regexp_part}|${arch_regexp_part}${os_regexp_part})"
+	regexp+="${suffix_regexp_part}"
 	regexp+="(${EXT_ALL_ARCHIVES})?"
 	echo "$regexp"
 }
@@ -190,9 +193,13 @@ function find_download_url() {
 	for name in $(jq -r '.assets[].name' "$release_json"); do
 		local lower_name=$(echo "$name" | tr '[A-Z]' '[a-z]')
 		if [[ "$lower_name" =~ $regexp ]]; then
-			print_debug "  $name ... Match!"
-			found="true"
-			jq -r --arg name "$name" '.assets[] | select(.name == $name) | .browser_download_url' "$release_json"
+			if [[ "$lower_name" =~ $REGEXP_IGNORE_PATTERN ]]; then
+				print_debug "  $name ... Ignored"
+			else
+				print_debug "  $name ... Match!"
+				found="true"
+				jq -r --arg name "$name" '.assets[] | select(.name == $name) | .browser_download_url' "$release_json"
+			fi
 		else
 			print_debug "  $name ... Doesn't match"
 		fi
