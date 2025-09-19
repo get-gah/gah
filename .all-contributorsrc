@@ -21,6 +21,15 @@
       "contributions": [
         "data"
       ]
+    },
+    {
+      "login": "LucasCzerny",
+      "name": "Lucas",
+      "avatar_url": "https://avatars.githubusercontent.com/u/112941608?v=4",
+      "profile": "https://github.com/LucasCzerny",
+      "contributions": [
+        "code"
+      ]
     }
   ]
 }
