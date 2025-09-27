@@ -327,7 +327,7 @@ function semver_to_number() {
 
 function command_help() {
 	echo "gah"
-	echo "  install <github_owner/github_repo_name | known_alias> [--tag=<git_tag>] [--use-default-names]"
+	echo "  install <github_owner/github_repo_name> | known_alias> [--tag=<git_tag>] [--unattended]"
 	echo "  aliases <show | refresh>"
 	echo "  update"
 	echo "  help"

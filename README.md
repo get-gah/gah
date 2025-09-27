@@ -39,14 +39,6 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/marverix/gah/refs/heads/
 
 Type `gah help` to see the list of available commands.
 
-```text
-gah
-  install <github_owner/github_repo_name | known_alias> [--tag=<git_tag>] [--use-default-names]
-  aliases <show | refresh>
-  help
-  version
-```
-
 ### Using known aliases
 
 `gah` has a predefined set of aliases for some popular apps. You can use these aliases to install the apps without specifying the full GitHub repository name.
