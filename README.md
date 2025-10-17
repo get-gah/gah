@@ -78,6 +78,23 @@ gah install getsops/sops
 gah update
 ```
 
+### GitHub API Authentication
+
+By default, `gah` uses unauthenticated GitHub API requests, which are limited to 60 requests per hour. If you frequently install applications or hit rate limits, you can authenticate using a GitHub Personal Access Token (PAT) to increase your rate limit to 5,000 requests per hour.
+
+To set up authentication:
+
+1. Create a Personal Access Token at https://github.com/settings/tokens (no special scopes required for public repositories)
+2. Set the `GITHUB_PAT` environment variable:
+
+```bash
+export GITHUB_PAT="ghp_your_token_here"
+```
+
+When authenticated, `gah` will display a confirmation message: "Using GitHub Personal Access Token for API requests".
+
+If you encounter a rate limit error, `gah` will provide instructions on how to set up authentication.
+
 ## Examples
 
 ### Install latest version of gh (GitHub CLI)
@@ -106,6 +123,8 @@ Name | Description | Default
 ---|---|---
 `GAH_INSTALL_DIR` | The directory where the gah will install your applications. This directory must be in your `PATH` environment variable. | `~/.local/bin`, for superuser it will be `/usr/local/bin`
 `GAH_CACHE_DIR` | The directory where cache will be stored. | `~/.cache/gah`
+`GITHUB_PAT` | GitHub Personal Access Token for authenticated API requests. Increases rate limit from 60 to 5,000 requests per hour. Create a token at https://github.com/settings/tokens | None (unauthenticated requests)
+`GAH_DEBUG` | Enable debug output showing detailed information about the installation process. | `false`
 
 ## Using in GitHub Actions
 
