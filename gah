@@ -177,15 +177,17 @@ function fetch_release_info() {
 
 	# Validate that we got a valid JSON response
 	if [[ ! -s release.json ]]; then
-		throw_error 13 "Failed to fetch release information from GitHub API.\nNo response received. Check your network connection."
+		throw_error 19 "Failed to fetch release information from GitHub API.\nNo response received. Check your network connection."
 	fi
 
 	if ! jq empty release.json 2>/dev/null; then
-		throw_error 13 "Failed to parse GitHub API response.\nReceived invalid JSON. The API might be unavailable."
+		print_debug "Invalid JSON received:\n$(cat release.json)"
+		throw_error 20 "Failed to parse GitHub API response.\nReceived invalid JSON. The API might be unavailable."
 	fi
 
 	# Check if response is an error (has .message but no .tag_name)
 	local err_message=$(jq -r '.message // "null"' release.json)
+	local err_status=$(jq -r '.status // "null"' release.json)
 	local tag_name=$(jq -r '.tag_name // "null"' release.json)
 
 	if [[ "$err_message" != "null" && "$tag_name" == "null" ]]; then
@@ -193,10 +195,10 @@ function fetch_release_info() {
 
 		# Check if this is a rate limit error
 		if [[ "$err_message" =~ [Rr]ate.limit ]]; then
-			throw_error 13 "GitHub API rate limit exceeded.\n\nUnauthenticated requests are limited to 60 per hour.\nAuthenticated requests get 5,000 per hour.\n\nTo authenticate, set the GITHUB_PAT environment variable:\n  export GITHUB_PAT=\"your_token_here\"\n\nCreate a token at: https://github.com/settings/tokens"
+			throw_error 21 "GitHub API rate limit exceeded.\n\nUnauthenticated requests are limited to 60 per hour.\nAuthenticated requests get 5,000 per hour.\n\nTo authenticate, set the GITHUB_PAT environment variable:\n  export GITHUB_PAT=\"your_token_here\"\n\nCreate a token at: https://github.com/settings/tokens"
 		fi
 
-		throw_error 13 "Couldn't fetch release information.\nResponse from GitHub API: $err_message"
+		throw_error 13 "Couldn't fetch release information.\nResponse from GitHub API [$err_status]: $err_message"
 	fi
 
 	local release_name=$(jq -r '.name // "Unknown"' release.json)
