@@ -11,7 +11,7 @@ set -e
 #--------------------------------------------------
 #region Constants
 
-VERSION="v1.6.1"
+VERSION="v1.7.0"
 HELP_STRING="Type 'gah help' to show help."
 
 if [ ! -t 0 ]; then
@@ -70,6 +70,19 @@ function cleanup() {
 		rm -fr "$tmp_dir"
 	fi
 }
+
+#endregion
+#--------------------------------------------------
+#region GitHub Authentication
+
+# Setup GitHub authentication if GITHUB_PAT is provided
+if [[ -n "${GITHUB_PAT:-}" ]]; then
+	GITHUB_AUTH_ARGS=(-H "Authorization: token ${GITHUB_PAT}")
+	print_green "Using GitHub Personal Access Token for API requests"
+else
+	GITHUB_AUTH_ARGS=()
+	print_debug "No GITHUB_PAT found - using unauthenticated GitHub API (rate limited to 60 requests/hour)"
+fi
 
 #endregion
 #--------------------------------------------------
@@ -160,16 +173,35 @@ function fetch_release_info() {
 	local url=$(get_fetch_release_info_url "$1" "$2")
 	print_debug "Fetching release information from: $url"
 
-	curl -s "$url" > release.json
+	curl -s "${GITHUB_AUTH_ARGS[@]}" "$url" > release.json
 
-	local err_status=$(jq -r '.status' release.json)
-	print_debug "Error status: $err_status"
-
-	if [[ "$err_status" != "null" ]]; then
-		throw_error 13 "Couldn't fetch release information.\nResponse from GitHub API: [$err_status] $(jq -r '.message' release.json)"
+	# Validate that we got a valid JSON response
+	if [[ ! -s release.json ]]; then
+		throw_error 19 "Failed to fetch release information from GitHub API.\nNo response received. Check your network connection."
 	fi
 
-	local release_name=$(jq -r '.name' release.json)
+	if ! jq empty release.json 2>/dev/null; then
+		print_debug "Invalid JSON received:\n$(cat release.json)"
+		throw_error 20 "Failed to parse GitHub API response.\nReceived invalid JSON. The API might be unavailable."
+	fi
+
+	# Check if response is an error (has .message but no .tag_name)
+	local err_message=$(jq -r '.message // "null"' release.json)
+	local err_status=$(jq -r '.status // "null"' release.json)
+	local tag_name=$(jq -r '.tag_name // "null"' release.json)
+
+	if [[ "$err_message" != "null" && "$tag_name" == "null" ]]; then
+		print_debug "API Error detected: $err_message"
+
+		# Check if this is a rate limit error
+		if [[ "$err_message" =~ [Rr]ate.limit ]]; then
+			throw_error 21 "GitHub API rate limit exceeded.\n\nUnauthenticated requests are limited to 60 per hour.\nAuthenticated requests get 5,000 per hour.\n\nTo authenticate, set the GITHUB_PAT environment variable:\n  export GITHUB_PAT=\"your_token_here\"\n\nCreate a token at: https://github.com/settings/tokens"
+		fi
+
+		throw_error 13 "Couldn't fetch release information.\nResponse from GitHub API [$err_status]: $err_message"
+	fi
+
+	local release_name=$(jq -r '.name // "Unknown"' release.json)
 	print_green "Found release: $release_name"
 }
 
@@ -474,7 +506,7 @@ function command_update() {
 	
 	# Check gah latest tag
 	print_blue "Checking latest gah release..."
-	local tag=$(curl -s "$(get_fetch_release_info_url $gah_repo)" | jq -r '.tag_name')
+	local tag=$(curl -s "${GITHUB_AUTH_ARGS[@]}" "$(get_fetch_release_info_url $gah_repo)" | jq -r '.tag_name')
 
 	# Compare versions
 	local new_number=$(semver_to_number "$tag")
