@@ -322,7 +322,7 @@ function verify_digest() {
 
 function fetch_db() {
 	print_debug "Fetching DB"
-	curl -s "https://raw.githubusercontent.com/marverix/gah/refs/heads/db/db.json" > "$GAH_DB_FILE"
+	curl -s "https://raw.githubusercontent.com/get-gah/gah/refs/heads/db/db.json" > "$GAH_DB_FILE"
 }
 
 function get_db_path() {
@@ -524,7 +524,7 @@ function command_aliases_refresh() {
 }
 
 function command_update() {
-	local gah_repo="marverix/gah"
+	local gah_repo="get-gah/gah"
 	local script_realpath=$(realpath "$0")
 
 	# Check if user has write permissions script_realpath

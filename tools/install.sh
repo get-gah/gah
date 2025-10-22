@@ -76,12 +76,12 @@ fi
 
 # Check gah latest tag
 print_blue "Checking latest gah release..."
-tag=$(curl -s https://api.github.com/repos/marverix/gah/releases/latest | jq -r '.tag_name')
+tag=$(curl -s https://api.github.com/repos/get-gah/gah/releases/latest | jq -r '.tag_name')
 print_green "OK, latest tag is $tag"
 
 # Download gah! script
 print_blue "Downloading gah $tag script..."
-curl -sL https://raw.githubusercontent.com/marverix/gah/refs/tags/$tag/gah -o "$GAH_INSTALL_DIR/gah"
+curl -sL https://raw.githubusercontent.com/get-gah/gah/refs/tags/$tag/gah -o "$GAH_INSTALL_DIR/gah"
 chmod +x "$GAH_INSTALL_DIR/gah"
 print_green "OK"
 

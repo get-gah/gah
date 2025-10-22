@@ -1,11 +1,11 @@
-![gah! logo](./_static/logo.svg)
+![gah! logo](./_static/logo-256x128.png)
 
 
-![GitHub top language](https://img.shields.io/github/languages/top/marverix/gah?color=d8d440&style=flat-square)
-![GitHub file size in bytes](https://img.shields.io/github/size/marverix/gah/gah?color=db805a&style=flat-square)
-[![GitHub Release](https://img.shields.io/github/v/release/marverix/gah?color=db5b92&style=flat-square)](https://github.com/marverix/gah/releases)
-[![GitHub License](https://img.shields.io/github/license/marverix/gah?color=b95fda&style=flat-square)](https://github.com/marverix/gah/blob/master/LICENSE)
-[![All Contributors](https://img.shields.io/github/all-contributors/marverix/gah?color=b1abea&style=flat-square)](#contributors)
+![GitHub top language](https://img.shields.io/github/languages/top/get-gah/gah?color=d8d440&style=flat-square)
+![GitHub file size in bytes](https://img.shields.io/github/size/get-gah/gah/gah?color=db805a&style=flat-square)
+[![GitHub Release](https://img.shields.io/github/v/release/get-gah/gah?color=db5b92&style=flat-square)](https://github.com/get-gah/gah/releases)
+[![GitHub License](https://img.shields.io/github/license/get-gah/gah?color=b95fda&style=flat-square)](https://github.com/get-gah/gah/blob/master/LICENSE)
+[![All Contributors](https://img.shields.io/github/all-contributors/get-gah/gah?color=b1abea&style=flat-square)](#contributors)
 
 
 `gah` is an GitHub Releases app installer, that **DOES NOT REQUIRE SUDO**! It is a simple bash script that downloads the latest release of an app from GitHub and installs it in `~/.local/bin`. It is designed to be used with apps that are distributed as a single binary file.
@@ -30,7 +30,7 @@ Nowadays more and more command-line tools and applications are distributed via G
 ## Installation
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/marverix/gah/refs/heads/master/tools/install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/get-gah/gah/refs/heads/master/tools/install.sh)"
 ```
 
 ## Usage
@@ -44,7 +44,7 @@ Type `gah help` to see the list of available commands.
 `gah` has a predefined set of aliases for some popular apps. You can use these aliases to install the apps without specifying the full GitHub repository name.
 To see the list of available aliases, type `gah aliases show`.
 
-The file `db.json` with aliases is located in [db branch](https://github.com/marverix/gah/blob/db/db.json). Feel free to add your own aliases or suggest new ones by creating a pull request.
+The file `db.json` with aliases is located in [db branch](https://github.com/get-gah/gah/blob/db/db.json). Feel free to add your own aliases or suggest new ones by creating a pull request.
 
 The file is cached locally for 24h.
 
@@ -128,7 +128,7 @@ Name | Description | Default
 
 ## Using in GitHub Actions
 
-There is an official GitHub Action to [setup gah](https://github.com/marverix/setup-gah).
+There is an official GitHub Action to [setup gah](https://github.com/get-gah/setup-gah).
 
 ## Contributors
 
@@ -141,10 +141,10 @@ Thanks to all contributors:
   <tbody>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/rverenich"><img src="https://avatars.githubusercontent.com/u/78074120?v=4?s=100" width="100px;" alt="Roman Verenich"/><br /><sub><b>Roman Verenich</b></sub></a><br /><a href="#data-rverenich" title="Data">🔣</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/LucasCzerny"><img src="https://avatars.githubusercontent.com/u/112941608?v=4?s=100" width="100px;" alt="Lucas"/><br /><sub><b>Lucas</b></sub></a><br /><a href="https://github.com/marverix/gah/commits?author=LucasCzerny" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/karlovsek"><img src="https://avatars.githubusercontent.com/u/43514900?v=4?s=100" width="100px;" alt="karlovsek"/><br /><sub><b>karlovsek</b></sub></a><br /><a href="https://github.com/marverix/gah/issues?q=author%3Akarlovsek" title="Bug reports">🐛</a> <a href="https://github.com/marverix/gah/commits?author=karlovsek" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/aslak01"><img src="https://avatars.githubusercontent.com/u/25505610?v=4?s=100" width="100px;" alt="aslak01"/><br /><sub><b>aslak01</b></sub></a><br /><a href="https://github.com/marverix/gah/issues?q=author%3Aaslak01" title="Bug reports">🐛</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/aheiska"><img src="https://avatars.githubusercontent.com/u/1764310?v=4?s=100" width="100px;" alt="Anssi Heiska"/><br /><sub><b>Anssi Heiska</b></sub></a><br /><a href="https://github.com/marverix/gah/issues?q=author%3Aaheiska" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/LucasCzerny"><img src="https://avatars.githubusercontent.com/u/112941608?v=4?s=100" width="100px;" alt="Lucas"/><br /><sub><b>Lucas</b></sub></a><br /><a href="https://github.com/get-gah/gah/commits?author=LucasCzerny" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/karlovsek"><img src="https://avatars.githubusercontent.com/u/43514900?v=4?s=100" width="100px;" alt="karlovsek"/><br /><sub><b>karlovsek</b></sub></a><br /><a href="https://github.com/get-gah/gah/issues?q=author%3Akarlovsek" title="Bug reports">🐛</a> <a href="https://github.com/get-gah/gah/commits?author=karlovsek" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/aslak01"><img src="https://avatars.githubusercontent.com/u/25505610?v=4?s=100" width="100px;" alt="aslak01"/><br /><sub><b>aslak01</b></sub></a><br /><a href="https://github.com/get-gah/gah/issues?q=author%3Aaslak01" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/aheiska"><img src="https://avatars.githubusercontent.com/u/1764310?v=4?s=100" width="100px;" alt="Anssi Heiska"/><br /><sub><b>Anssi Heiska</b></sub></a><br /><a href="https://github.com/get-gah/gah/issues?q=author%3Aaheiska" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
