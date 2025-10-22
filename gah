@@ -373,11 +373,17 @@ function command_version() {
 }
 
 function command_install() {
+	print_debug "Starting installation process"
+
 	# Create temporary directory
-	tmp_dir=$(mktemp -d)
+	print_debug "Creating temporary directory"
+	tmp_dir=$(mktemp -d -p "$GAH_CACHE_DIR")
+	print_debug "OK, temporary directory: $tmp_dir"
 
 	# Change to temporary directory
-	cd $tmp_dir
+	print_debug "Changing to temporary directory"
+	cd "$tmp_dir"
+	print_debug "OK"
 
 	local repo="$1"
 	local tag="$2"
@@ -385,17 +391,18 @@ function command_install() {
 	# Fetch the release information
 	print_blue "Fetching release info for: $repo [$tag]"
 	fetch_release_info "$repo" "$tag"
+	print_debug "OK"
 
 	# Find the download URL
+	print_debug "Finding download URL"
 	local download_url=$(find_download_url "$tmp_dir/release.json")
+	print_debug "OK, Download URL:\n$download_url"
 
 	if [[ -z "$download_url" ]]; then
 		local os=$(get_os)
 		local arch=$(get_arch)
 		throw_error 18 "Could not find any assets matching your OS ($os) and Arch ($arch)."
 	fi
-
-	print_debug "Download URL:\n$download_url"
 
 	# Check if several download URLs were found
 	if [[ $(echo "$download_url" | wc -l) -gt 1 ]]; then
@@ -421,48 +428,69 @@ function command_install() {
 	fi
 
 	# Get a filename
+	print_debug "Getting filename from URL"
 	local filename=$(basename "$download_url")
+	print_debug "OK, filename: $filename"
 
 	# Find digest
+	print_debug "Finding digest for download URL"
 	local digest=$(find_digest_for_url "$tmp_dir/release.json" "$download_url")
+	print_debug "OK, digest: $digest"
 
 	# Download the file
 	print_blue "Downloading: $filename"
 	curl -L --progress-bar -o "$filename" "$download_url"
 
 	# Verify the download if digest is available
+	print_debug "Verifying download digest if available"
 	if [[ -n "$digest" ]]; then
+		print_debug "OK, verifying digest for $filename"
 		verify_digest "$filename" "$digest"
 	else
 		print_yellow "GitHub Release did not provide digest for $filename. Skipping verification."
 	fi
 
 	# Extract if needed
+	print_debug "Checking if extraction is needed for: $filename"
 	if [[ "$filename" =~ $REGEXP_EXT_TAR ]]; then
 		print_blue "Extracting: $filename"
 		tar -xf "$filename"
+		print_debug "OK, extracted using tar"
 
 	elif [[ "$filename" =~ $REGEXP_EXT_ZIP ]]; then
 		print_blue "Extracting: $filename"
 		unzip -q "$filename"
+		print_debug "OK, extracted using unzip"
 
 	else
 		print_debug "Does not look like supported archive - no need to extract"
 		chmod +x "$filename"
 	fi
 
+	print_debug "Finding executable files to install"
 	for bin_file in $(find . -type f -executable); do
-		local file_name=$(basename "$bin_file")
-		local lower_file_name=$(echo "$file_name" | tr '[A-Z]' '[a-z]')
+		print_debug "Found executable: $bin_file"
 
+		print_debug "Getting base file name"
+		local file_name=$(basename "$bin_file")
+		print_debug "OK, base file name: $file_name"
+
+		print_debug "Calculating lower case file name for skip check"
+		local lower_file_name=$(echo "$file_name" | tr '[A-Z]' '[a-z]')
+		print_debug "OK, lower case file name: $lower_file_name"
+
+		print_debug "Checking if file should be skipped"
 		if [[ "$lower_file_name" =~ $REGEXP_SKIP_FILES ]]; then
-			print_debug "Skipping: $file_name"
+			print_debug "File name matches skip pattern - Skipping: $file_name"
 			continue
 		fi
+		print_debug "No skip pattern matched - File will be installed"
 
+		print_debug "Removing version/os/arch parts from file name if present"
 		local regexp=$(get_name_regexp)
 		if [[ "$file_name" =~ $regexp ]]; then
 			file_name="${BASH_REMATCH[1]}"
+			print_debug "OK, cleaned file name"
 		fi
 
 		print_blue "Installing: $file_name"
