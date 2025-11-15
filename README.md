@@ -58,7 +58,7 @@ gah install getsops/sops --tag=v3.10.2
 
 ### Unattended mode
 
-`gah` will try to detect if your terminal supports input or not. To force this behavior you can either use the `--unattended` flag or set env var `UNATTENDED=true`.
+`gah` will try to detect if your terminal supports input or not. To force this behavior you can either use the `--unattended` flag or set env var `GAH_UNATTENDED=true` (for backward compatibility `UNATTENDED=true` will also work).
 This will skip the confirmation prompt and install the app without asking for any input.
 
 ```bash
@@ -68,8 +68,16 @@ gah install getsops/sops --unattended
 or
 
 ```bash
-export UNATTENDED=true
+export GAH_UNATTENDED=true
 gah install getsops/sops
+```
+
+#### Selecting download URL in unattended mode
+
+If multiple download URLs match your OS and architecture, you can specify which one to use in unattended mode by providing the `--unattended-select-index` option. The index start from 1, which is also the default value.
+
+```bash
+gah install zellij-org/zellij --unattended --unattended-select-index=2
 ```
 
 ### Update gah
@@ -125,6 +133,7 @@ Name | Description | Default
 `GAH_CACHE_DIR` | The directory where cache will be stored. | `~/.cache/gah`
 `GITHUB_PAT` | GitHub Personal Access Token for authenticated API requests. Increases rate limit from 60 to 5,000 requests per hour. Create a token at https://github.com/settings/tokens | None (unauthenticated requests)
 `GAH_DEBUG` | Enable debug output showing detailed information about the installation process. | `false`
+`GAH_UNATTENDED` | Enable unattended mode, which skips confirmation prompts during installation. | `false`
 
 ## Using in GitHub Actions
 

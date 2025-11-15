@@ -15,7 +15,7 @@ VERSION="v1.8.0"
 HELP_STRING="Type 'gah help' to show help."
 
 if [ ! -t 0 ]; then
-	UNATTENDED="true"
+	GAH_UNATTENDED="true"
 fi
 
 if [[ -z "$GAH_CACHE_DIR" ]]; then
@@ -408,10 +408,14 @@ function command_install() {
 	if [[ $(echo "$download_url" | wc -l) -gt 1 ]]; then
 		print_yellow "Several download URLs were found which match your OS and arch."
 
-		if [[ "$UNATTENDED" == "true" ]]; then
-			# Select the first one
-			download_url=$(echo "$download_url" | head -n 1)
-			print_yellow "Unattended mode, so using the first download URL: $download_url"
+		if [[ "$GAH_UNATTENDED" == "true" ]]; then
+			# Select based on unattended_select_index
+			download_url=$(echo "$download_url" | sed -n "${unattended_select_index}p" 2>/dev/null || true)
+			if [[ -z "$download_url" ]]; then
+				throw_error 22 "Invalid selection index ($unattended_select_index) for unattended mode. No URL at that index."
+			fi
+			print_yellow "Unattended mode, using download URL at index $unattended_select_index: $download_url"
+
 
 		else
 			print_yellow "Please select one:"
@@ -495,7 +499,7 @@ function command_install() {
 
 		print_blue "Installing: $file_name"
 
-		if [[ "$UNATTENDED" == "true" ]]; then
+		if [[ "$GAH_UNATTENDED" == "true" ]]; then
 			print_yellow "Using default name: $file_name"
 		else
 			print_yellow "Give a new name or keep '$file_name'? (Leave empty to keep the same)"
@@ -598,7 +602,11 @@ function main() {
 				shift 1
 				;;
 			--unattended)
-				UNATTENDED="true"
+				GAH_UNATTENDED="true"
+				shift 1
+				;;
+			--unattended-select-index=*)
+				unattended_select_index="${3#--unattended-select-index=}"
 				shift 1
 				;;
 			*)
@@ -606,6 +614,14 @@ function main() {
 				;;
 			esac
 		done
+
+		if [[ "$UNATTENDED" == "true" ]]; then
+			GAH_UNATTENDED="true"
+		fi
+
+		if [[ -z "$unattended_select_index" ]]; then
+			unattended_select_index="1"
+		fi
 
 		# Use the parsed tag and default_names
 		command_install "$repo" "$tag"
