@@ -89,7 +89,7 @@ fi
 #region RegExp functions
 
 EXT_ZIP="\.zip"
-EXT_TAR="\.tar\.gz|\.tar\.xz|\.tar\.bz2"
+EXT_TAR="\.tar\.gz|\.tgz|\.tar\.xz|\.txz|\.tar\.bz2|\.tbz"
 EXT_ALL_ARCHIVES="$EXT_ZIP|$EXT_TAR"
 
 REGEXP_EXT_ZIP=".+(${EXT_ZIP})$"
