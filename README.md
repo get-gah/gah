@@ -155,6 +155,7 @@ Thanks to all contributors:
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/aslak01"><img src="https://avatars.githubusercontent.com/u/25505610?v=4?s=100" width="100px;" alt="aslak01"/><br /><sub><b>aslak01</b></sub></a><br /><a href="https://github.com/get-gah/gah/issues?q=author%3Aaslak01" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/aheiska"><img src="https://avatars.githubusercontent.com/u/1764310?v=4?s=100" width="100px;" alt="Anssi Heiska"/><br /><sub><b>Anssi Heiska</b></sub></a><br /><a href="https://github.com/get-gah/gah/issues?q=author%3Aaheiska" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://gh-profile-rishabh-os.vercel.app"><img src="https://avatars.githubusercontent.com/u/42971275?v=4?s=100" width="100px;" alt="Rishabh"/><br /><sub><b>Rishabh</b></sub></a><br /><a href="#ideas-rishabh-os" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://lylebrown.com"><img src="https://avatars.githubusercontent.com/u/6559258?v=4?s=100" width="100px;" alt="Lyle Brown"/><br /><sub><b>Lyle Brown</b></sub></a><br /><a href="#ideas-lylebrown" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
 </table>
