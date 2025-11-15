@@ -72,6 +72,14 @@ export GAH_UNATTENDED=true
 gah install getsops/sops
 ```
 
+#### Selecting download URL in unattended mode
+
+If multiple download URLs match your OS and architecture, you can specify which one to use in unattended mode by providing the `--unattended-select-index` option. The index start from 1, which is also the default value.
+
+```bash
+gah install zellij-org/zellij --unattended --unattended-select-index=2
+```
+
 ### Update gah
 
 ```sh
