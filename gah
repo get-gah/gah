@@ -15,7 +15,7 @@ VERSION="v1.8.0"
 HELP_STRING="Type 'gah help' to show help."
 
 if [ ! -t 0 ]; then
-	UNATTENDED="true"
+	GAH_UNATTENDED="true"
 fi
 
 if [[ -z "$GAH_CACHE_DIR" ]]; then
@@ -408,7 +408,7 @@ function command_install() {
 	if [[ $(echo "$download_url" | wc -l) -gt 1 ]]; then
 		print_yellow "Several download URLs were found which match your OS and arch."
 
-		if [[ "$UNATTENDED" == "true" ]]; then
+		if [[ "$GAH_UNATTENDED" == "true" ]]; then
 			# Select the first one
 			download_url=$(echo "$download_url" | head -n 1)
 			print_yellow "Unattended mode, so using the first download URL: $download_url"
@@ -495,7 +495,7 @@ function command_install() {
 
 		print_blue "Installing: $file_name"
 
-		if [[ "$UNATTENDED" == "true" ]]; then
+		if [[ "$GAH_UNATTENDED" == "true" ]]; then
 			print_yellow "Using default name: $file_name"
 		else
 			print_yellow "Give a new name or keep '$file_name'? (Leave empty to keep the same)"
@@ -598,7 +598,7 @@ function main() {
 				shift 1
 				;;
 			--unattended)
-				UNATTENDED="true"
+				GAH_UNATTENDED="true"
 				shift 1
 				;;
 			*)
@@ -606,6 +606,10 @@ function main() {
 				;;
 			esac
 		done
+
+		if [[ "$UNATTENDED" == "true" ]]; then
+			GAH_UNATTENDED="true"
+		fi
 
 		# Use the parsed tag and default_names
 		command_install "$repo" "$tag"
