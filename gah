@@ -77,7 +77,7 @@ function http_get() {
 	if command -v curl >/dev/null 2>&1; then
 		curl -s "${GITHUB_AUTH_ARGS[@]}" "$url"
 	else
-		wget -qO- "${GITHUB_AUTH_ARGS[@]}" "$url"
+		wget -q -O- "${GITHUB_AUTH_ARGS[@]}" "$url"
 	fi
 }
 
