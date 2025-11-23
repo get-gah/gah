@@ -87,7 +87,7 @@ print_blue "Checking latest gah release..."
 if command -v curl >/dev/null 2>&1; then
 	tag=$(curl -s "${GITHUB_AUTH_ARGS[@]}" https://api.github.com/repos/get-gah/gah/releases/latest | jq -r '.tag_name')
 else
-	tag=$(wget -q "${GITHUB_AUTH_ARGS[@]}" -O - https://api.github.com/repos/get-gah/gah/releases/latest | jq -r '.tag_name')
+	tag=$(wget -q "${GITHUB_AUTH_ARGS[@]}" -O- https://api.github.com/repos/get-gah/gah/releases/latest | jq -r '.tag_name')
 fi
 print_green "OK, latest tag is $tag"
 
