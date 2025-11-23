@@ -71,13 +71,48 @@ function cleanup() {
 	fi
 }
 
+function http_get() {
+	local url="$1"
+	# if curl is available, use it, otherwise use wget.
+	if command -v curl >/dev/null 2>&1; then
+		curl -s "${GITHUB_AUTH_ARGS[@]}" "$url"
+	else
+		wget -qO- "${GITHUB_AUTH_ARGS[@]}" "$url"
+	fi
+}
+
+function http_download() {
+	local url="$1"
+	local destination="$2"
+	local silent="$3"
+	local progress="$4"
+	# if curl is available, use it, otherwise use wget.
+	if command -v curl >/dev/null 2>&1; then
+		[[ $silent == "true" ]] && silent_option="-s" || silent_option=""
+		[[ $progress == "true" ]] && progress_option="--progress-bar" || progress_option=""
+		curl ${silent_option} -L ${progress_option} "${GITHUB_AUTH_ARGS[@]}" -o "$destination" "$url"
+	else
+	    # detect if wget is from alpine/busybox or a GNU wget
+		if wget --version >/dev/null 2>&1; then
+			local is_gnu_wget="true"
+		else
+			local is_gnu_wget="false"
+		fi
+		local wget_progress_option
+		local silent_option
+		[[ $silent == "true" ]] && silent_option="-q" || silent_option=""
+		[[ $progress == "true" && $is_gnu_wget == "true" ]] && progress_option="--show-progress" || progress_option=""
+		wget ${silent_option} ${progress_option} "${GITHUB_AUTH_ARGS[@]}" -O "$destination" "$url"
+	fi
+}
+
 #endregion
 #--------------------------------------------------
 #region GitHub Authentication
 
 # Setup GitHub authentication if GITHUB_PAT is provided
 if [[ -n "${GITHUB_PAT:-}" ]]; then
-	GITHUB_AUTH_ARGS=(-H "Authorization: token ${GITHUB_PAT}")
+	GITHUB_AUTH_ARGS=(--header "Authorization: token ${GITHUB_PAT}")
 	print_green "Using GitHub Personal Access Token for API requests"
 else
 	GITHUB_AUTH_ARGS=()
@@ -173,7 +208,7 @@ function fetch_release_info() {
 	local url=$(get_fetch_release_info_url "$1" "$2")
 	print_debug "Fetching release information from: $url"
 
-	curl -s "${GITHUB_AUTH_ARGS[@]}" "$url" > release.json
+	http_get "$url" > release.json
 
 	# Validate that we got a valid JSON response
 	if [[ ! -s release.json ]]; then
@@ -322,7 +357,7 @@ function verify_digest() {
 
 function fetch_db() {
 	print_debug "Fetching DB"
-	curl -s "https://raw.githubusercontent.com/get-gah/gah-db/refs/heads/master/db.json" > "$GAH_DB_FILE"
+	http_get "https://raw.githubusercontent.com/get-gah/gah-db/refs/heads/master/db.json" > "$GAH_DB_FILE"
 }
 
 function get_db_path() {
@@ -443,7 +478,7 @@ function command_install() {
 
 	# Download the file
 	print_blue "Downloading: $filename"
-	curl -L --progress-bar -o "$filename" "$download_url"
+	http_download "$download_url" "$filename" true true
 
 	# Verify the download if digest is available
 	print_debug "Verifying download digest if available"
@@ -552,7 +587,7 @@ function command_update() {
 	fi
 
 	# Download gah! script
-	curl -sL https://raw.githubusercontent.com/$gah_repo/refs/tags/$tag/gah -o "$script_realpath"
+	http_download "https://raw.githubusercontent.com/$gah_repo/refs/tags/$tag/gah" "$script_realpath" true false
 	chmod +x "$script_realpath"
 	print_green "OK"
 

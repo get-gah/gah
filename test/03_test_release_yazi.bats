@@ -18,6 +18,7 @@ teardown() {
 	
 	unstub uname || true
 	unstub curl || true
+	unstub wget || true
 }
 
 @test "find_download_url should print match for the correct asset [linux/amd64]" {

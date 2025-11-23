@@ -57,7 +57,7 @@ print_green "OK"
 # Check if required commands are installed
 require_command tar
 require_command unzip
-require_command curl
+require_command curl || require_command wget
 require_command jq
 require_command openssl
 
@@ -74,14 +74,30 @@ else
 	print_green "OK, looks good!"
 fi
 
+if [[ -n "${GITHUB_PAT:-}" ]]; then
+	GITHUB_AUTH_ARGS=(--header "Authorization: token ${GITHUB_PAT}")
+	print_green "Using GitHub Personal Access Token for API requests"
+else
+	GITHUB_AUTH_ARGS=()
+	print_yellow "No GITHUB_PAT found - using unauthenticated GitHub API (rate limited to 60 requests/hour)"
+fi
+
 # Check gah latest tag
 print_blue "Checking latest gah release..."
-tag=$(curl -s https://api.github.com/repos/get-gah/gah/releases/latest | jq -r '.tag_name')
+if command -v curl >/dev/null 2>&1; then
+	tag=$(curl -s "${GITHUB_AUTH_ARGS[@]}" https://api.github.com/repos/get-gah/gah/releases/latest | jq -r '.tag_name')
+else
+	tag=$(wget -q "${GITHUB_AUTH_ARGS[@]}" -O - https://api.github.com/repos/get-gah/gah/releases/latest | jq -r '.tag_name')
+fi
 print_green "OK, latest tag is $tag"
 
 # Download gah! script
 print_blue "Downloading gah $tag script..."
-curl -sL https://raw.githubusercontent.com/get-gah/gah/refs/tags/$tag/gah -o "$GAH_INSTALL_DIR/gah"
+if command -v curl >/dev/null 2>&1; then
+	curl -sL https://raw.githubusercontent.com/get-gah/gah/refs/tags/$tag/gah -o "$GAH_INSTALL_DIR/gah"
+else
+	wget -q https://raw.githubusercontent.com/get-gah/gah/refs/tags/$tag/gah -O "$GAH_INSTALL_DIR/gah"
+fi
 chmod +x "$GAH_INSTALL_DIR/gah"
 print_green "OK"
 

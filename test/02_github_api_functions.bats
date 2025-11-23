@@ -18,6 +18,7 @@ teardown() {
 	
 	unstub uname || true
 	unstub curl || true
+	unstub wget || true
 }
 
 @test "get_fetch_release_info_url should print the correct URL if no version is provided" {
@@ -43,6 +44,7 @@ teardown() {
 
 @test "fetch_release_info should save the release info to a file" {
 	stub curl "-s * : cat '$DIR/test/fixtures/releases/argocd/release.json'"
+	stub wget "-q * : cat '$DIR/test/fixtures/releases/argocd/release.json'"
 
 	TEST_TEMP_DIR=$(mktemp -d)
 	cd "$TEST_TEMP_DIR"
