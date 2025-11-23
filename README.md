@@ -27,10 +27,23 @@ Nowadays more and more command-line tools and applications are distributed via G
 - 🗃 Has own base of predefined aliases for GitHub repositories (PRs are welcome!)
 - 🔐 Verifies downloaded files using provided by `openssl` against [asset's digest value](https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#get-a-release-asset)
 
+## Requirements
+
+- `bash` (but also works in `ash`)
+- `jq`
+- `curl` or `wget`
+- `tar`
+- `unzip`
+- `openssl`
+
 ## Installation
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/get-gah/gah/refs/heads/master/tools/install.sh)"
+```
+or
+```bash
+bash -c "$(wget -qO- https://raw.githubusercontent.com/get-gah/gah/refs/heads/master/tools/install.sh)"
 ```
 
 ## Usage
