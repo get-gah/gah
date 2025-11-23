@@ -29,7 +29,7 @@ Nowadays more and more command-line tools and applications are distributed via G
 
 ## Requirements
 
-- `bash` (but also works in `ash`)
+- `bash`
 - `jq`
 - `curl` or `wget`
 - `tar`
