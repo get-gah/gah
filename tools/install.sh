@@ -37,13 +37,23 @@ function throw_error() {
 }
 
 function require_command() {
-	print_blue "Checking if $1 is installed..."
-	if ! command -v $1 2>&1 >/dev/null; then
-		throw_error 2 "$1 is not installed"
+	local cmd=$1
+	local cmd_alternative=$2
+	if [[ -z $cmd_alternative ]]; then
+		print_blue "Checking if $cmd is installed..."
+	else
+		print_blue "Checking if $cmd or $cmd_alternative are installed..."
+	fi
+	if ! command -v $cmd 2>&1 >/dev/null; then
+		if [[ -z $cmd_alternative ]]; then
+			throw_error 2 "$cmd is not installed"
+		fi
+		if ! command -v $cmd_alternative 2>&1 >/dev/null; then
+			throw_error 2 "$cmd and $cmd_alternative are both not installed"
+		fi
 	fi
 	print_green "OK"
 }
-
 #endregion
 #--------------------------------------------------
 
@@ -57,7 +67,7 @@ print_green "OK"
 # Check if required commands are installed
 require_command tar
 require_command unzip
-require_command curl || require_command wget
+require_command curl wget
 require_command jq
 require_command openssl
 
@@ -83,13 +93,18 @@ else
 fi
 
 # Check gah latest tag
-print_blue "Checking latest gah release..."
-if command -v curl >/dev/null 2>&1; then
-	tag=$(curl -s "${GITHUB_AUTH_ARGS[@]}" https://api.github.com/repos/get-gah/gah/releases/latest | jq -r '.tag_name')
+if [[ -z "$GAH_VERSION" ]]; then
+	print_blue "Checking latest gah release..."
+	if command -v curl >/dev/null 2>&1; then
+		tag=$(curl -s "${GITHUB_AUTH_ARGS[@]}" https://api.github.com/repos/get-gah/gah/releases/latest | jq -r '.tag_name')
+	else
+		tag=$(wget -q "${GITHUB_AUTH_ARGS[@]}" -O- https://api.github.com/repos/get-gah/gah/releases/latest | jq -r '.tag_name')
+	fi
+	print_green "OK, latest tag is $tag"
 else
-	tag=$(wget -q "${GITHUB_AUTH_ARGS[@]}" -O- https://api.github.com/repos/get-gah/gah/releases/latest | jq -r '.tag_name')
+	print_green "Installing requested gah version $GAH_VERSION"
+	tag=$GAH_VERSION
 fi
-print_green "OK, latest tag is $tag"
 
 # Download gah! script
 print_blue "Downloading gah $tag script..."
