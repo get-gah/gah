@@ -37,13 +37,23 @@ function throw_error() {
 }
 
 function require_command() {
-	print_blue "Checking if $1 is installed..."
-	if ! command -v $1 2>&1 >/dev/null; then
-		throw_error 2 "$1 is not installed"
+	local cmd=$1
+	local cmd_alternative=$2
+	if [[ -z $cmd_alternative ]]; then
+		print_blue "Checking if $cmd is installed..."
+	else
+		print_blue "Checking if $cmd or $cmd_alternative are installed..."
+	fi
+	if ! command -v $cmd 2>&1 >/dev/null; then
+		if [[ -z $cmd_alternative ]]; then
+			throw_error 2 "$cmd is not installed"
+		fi
+		if ! command -v $cmd_alternative 2>&1 >/dev/null; then
+			throw_error 2 "$cmd and $cmd_alternative are both not installed"
+		fi
 	fi
 	print_green "OK"
 }
-
 #endregion
 #--------------------------------------------------
 
@@ -57,7 +67,7 @@ print_green "OK"
 # Check if required commands are installed
 require_command tar
 require_command unzip
-require_command curl || require_command wget
+require_command curl wget
 require_command jq
 require_command openssl
 
