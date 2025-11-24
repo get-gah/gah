@@ -18,10 +18,12 @@ teardown() {
 	
 	unstub uname || true
 	unstub curl || true
+	unstub wget || true
 }
 
 @test "fetch_release_info should print an network error message if the release info cannot be fetched" {
 	stub curl "-s * : touch release.json"
+	stub wget "-q * : touch release.json"
 
 	TEST_TEMP_DIR=$(mktemp -d)
 	cd "$TEST_TEMP_DIR"
@@ -35,6 +37,7 @@ teardown() {
 
 @test "fetch_release_info should print an json error message if the release info is not valid json" {
 	stub curl "-s * : echo 'not a json'"
+	stub wget "-q * : echo 'not a json'"
 
 	TEST_TEMP_DIR=$(mktemp -d)
 	cd "$TEST_TEMP_DIR"
@@ -48,6 +51,7 @@ teardown() {
 
 @test "fetch_release_info should print an rate limit error message if the response indicates rate limiting" {
 	stub curl "-s * : cat '$DIR/test/fixtures/releases/_error/rate_limit_release.json'"
+	stub wget "-q * : cat '$DIR/test/fixtures/releases/_error/rate_limit_release.json'"
 
 	TEST_TEMP_DIR=$(mktemp -d)
 	cd "$TEST_TEMP_DIR"
@@ -65,6 +69,7 @@ teardown() {
 
 @test "fetch_release_info should print an error message if the release info contains some other error" {
 	stub curl "-s * : cat '$DIR/test/fixtures/releases/_error/teapot_release.json'"
+	stub wget "-q * : cat '$DIR/test/fixtures/releases/_error/teapot_release.json'"
 
 	TEST_TEMP_DIR=$(mktemp -d)
 	cd "$TEST_TEMP_DIR"
