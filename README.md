@@ -57,7 +57,7 @@ Type `gah help` to see the list of available commands.
 `gah` has a predefined set of aliases for some popular apps. You can use these aliases to install the apps without specifying the full GitHub repository name.
 To see the list of available aliases, type `gah aliases show`.
 
-The file `db.json` with aliases is located in [db branch](https://github.com/get-gah/gah/blob/db/db.json). Feel free to add your own aliases or suggest new ones by creating a pull request.
+The file `db.json` with aliases is located in [get-gah/gah-db](https://github.com/get-gah/gah-db/blob/master/db.json). Feel free to add your own aliases or suggest new ones by creating a pull request.
 
 The file is cached locally for 24h.
 
