@@ -81,16 +81,24 @@ function http_get() {
 	fi
 }
 
+# parameters:
+# - url: the URL to download
+# - destination: the destination file path
+# - silent: if true, the download will be completely silent
+# - progress: if true, the download will show a progress bar
 function http_download() {
 	local url="$1"
 	local destination="$2"
 	local silent="$3"
 	local progress="$4"
+
+	local silent_option
 	# if curl is available, use it, otherwise use wget.
 	if command -v curl >/dev/null 2>&1; then
+		local curl_progress_option
 		[[ $silent == "true" ]] && silent_option="-s" || silent_option=""
-		[[ $progress == "true" ]] && progress_option="--progress-bar" || progress_option=""
-		curl ${silent_option} -L ${progress_option} "${GITHUB_AUTH_ARGS[@]}" -o "$destination" "$url"
+		[[ $progress == "true" ]] && curl_progress_option="--progress-bar" || curl_progress_option=""
+		curl ${silent_option} -L ${curl_progress_option} "${GITHUB_AUTH_ARGS[@]}" -o "$destination" "$url"
 	else
 	    # detect if wget is from alpine/busybox or a GNU wget
 		if wget --version >/dev/null 2>&1; then
@@ -99,10 +107,9 @@ function http_download() {
 			local is_gnu_wget="false"
 		fi
 		local wget_progress_option
-		local silent_option
 		[[ $silent == "true" ]] && silent_option="-q" || silent_option=""
 		[[ $progress == "true" && $is_gnu_wget == "true" ]] && progress_option="--show-progress" || progress_option=""
-		wget ${silent_option} ${progress_option} "${GITHUB_AUTH_ARGS[@]}" -O "$destination" "$url"
+		wget ${silent_option} ${wget_progress_option} "${GITHUB_AUTH_ARGS[@]}" -O "$destination" "$url"
 	fi
 }
 
@@ -478,7 +485,7 @@ function command_install() {
 
 	# Download the file
 	print_blue "Downloading: $filename"
-	http_download "$download_url" "$filename" true true
+	http_download "$download_url" "$filename" false true
 
 	# Verify the download if digest is available
 	print_debug "Verifying download digest if available"
