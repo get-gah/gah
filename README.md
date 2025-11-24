@@ -170,6 +170,9 @@ Thanks to all contributors:
       <td align="center" valign="top" width="14.28%"><a href="https://gh-profile-rishabh-os.vercel.app"><img src="https://avatars.githubusercontent.com/u/42971275?v=4?s=100" width="100px;" alt="Rishabh"/><br /><sub><b>Rishabh</b></sub></a><br /><a href="#ideas-rishabh-os" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://lylebrown.com"><img src="https://avatars.githubusercontent.com/u/6559258?v=4?s=100" width="100px;" alt="Lyle Brown"/><br /><sub><b>Lyle Brown</b></sub></a><br /><a href="#ideas-lylebrown" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/danielefranceschi"><img src="https://avatars.githubusercontent.com/u/16599499?v=4?s=100" width="100px;" alt="Daniele Franceschi"/><br /><sub><b>Daniele Franceschi</b></sub></a><br /><a href="https://github.com/get-gah/gah/commits?author=danielefranceschi" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
