@@ -59,6 +59,9 @@ To see the list of available aliases, type `gah aliases show`.
 
 The file `db.json` with aliases is located in [get-gah/gah-db](https://github.com/get-gah/gah-db/blob/master/db.json). Feel free to add your own aliases or suggest new ones by creating a pull request.
 
+> [!NOTE]  
+> Previously the database file was located on a separate branch of this repository. Now it is moved to a separate repository to allow independent updates. Please make sure to use the latest version of `gah` to get the new database location.
+
 The file is cached locally for 24h.
 
 ### Specifying the tag
