@@ -24,12 +24,12 @@ jobs:
     runs-on: ubuntu-latest
     container: library/alpine:3
     steps:
+      - name: Install dependencies
+        run: apk add jq openssl bash git
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Install dependencies
-        run: apk add jq openssl bash
       - name: Test
         shell: bash
         run: ./test/bats/bin/bats ./test
@@ -44,12 +44,12 @@ jobs:
     runs-on: ubuntu-latest
     container: library/debian:13-slim
     steps:
+      - name: Install dependencies
+        run: apt-get update && apt-get install -y jq openssl curl git
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Install dependencies
-        run: apt-get update && apt-get install -y jq openssl curl
       - name: Test
         run: ./test/bats/bin/bats ./test
       - name: Install something
