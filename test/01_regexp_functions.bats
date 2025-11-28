@@ -130,7 +130,7 @@ teardown() {
 	run get_arch_regexp_part
 
 	assert_success
-	assert_output '[._-](amd64|x86_64|x64|universal)'
+	assert_output '[._-](amd64|x86_64|x64|64bit|universal)'
 }
 
 @test "get_arch_regexp_part should return proper string for arm64 architecture" {
@@ -157,7 +157,7 @@ teardown() {
 	run get_filename_regexp
 
 	assert_success
-	assert_output '([a-z][a-z0-9_-]+?)([_-]v?[0-9.]+)?([._-](unknown[._-])?(linux|linux-gnu|linux-musl)[._-](amd64|x86_64|x64|universal)|[._-](amd64|x86_64|x64|universal)[._-](unknown[._-])?(linux|linux-gnu|linux-musl))([_-][a-z0-9_-]+)?(\.zip|\.tar\.gz|\.tgz|\.tar\.xz|\.txz|\.tar\.bz2|\.tbz)?'
+	assert_output '([a-z][a-z0-9_-]+?)([_-]v?[0-9.]+)?([._-](unknown[._-])?(linux|linux-gnu|linux-musl)[._-](amd64|x86_64|x64|64bit|universal)|[._-](amd64|x86_64|x64|64bit|universal)[._-](unknown[._-])?(linux|linux-gnu|linux-musl))([_-][a-z0-9_-]+)?(\.zip|\.tar\.gz|\.tgz|\.tar\.xz|\.txz|\.tar\.bz2|\.tbz)?'
 }
 
 @test "get_filename_regexp should return proper string for linux/arm64" {
@@ -179,7 +179,7 @@ teardown() {
 	run get_filename_regexp
 
 	assert_success
-	assert_output '([a-z][a-z0-9_-]+?)([_-]v?[0-9.]+)?([._-](apple[._-])?(darwin|macos|osx)[._-](amd64|x86_64|x64|universal)|[._-](amd64|x86_64|x64|universal)[._-](apple[._-])?(darwin|macos|osx))([_-][a-z0-9_-]+)?(\.zip|\.tar\.gz|\.tgz|\.tar\.xz|\.txz|\.tar\.bz2|\.tbz)?'
+	assert_output '([a-z][a-z0-9_-]+?)([_-]v?[0-9.]+)?([._-](apple[._-])?(darwin|macos|osx)[._-](amd64|x86_64|x64|64bit|universal)|[._-](amd64|x86_64|x64|64bit|universal)[._-](apple[._-])?(darwin|macos|osx))([_-][a-z0-9_-]+)?(\.zip|\.tar\.gz|\.tgz|\.tar\.xz|\.txz|\.tar\.bz2|\.tbz)?'
 }
 
 @test "get_filename_regexp should return proper string for macos/arm64" {
