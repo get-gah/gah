@@ -175,6 +175,7 @@ Thanks to all contributors:
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/danielefranceschi"><img src="https://avatars.githubusercontent.com/u/16599499?v=4?s=100" width="100px;" alt="Daniele Franceschi"/><br /><sub><b>Daniele Franceschi</b></sub></a><br /><a href="https://github.com/get-gah/gah/commits?author=danielefranceschi" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ebb-earl-co"><img src="https://avatars.githubusercontent.com/u/11299014?v=4?s=100" width="100px;" alt="Colin Coe"/><br /><sub><b>Colin Coe</b></sub></a><br /><a href="#ideas-ebb-earl-co" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
 </table>
