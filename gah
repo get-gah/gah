@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 
-if [ -z "$BASH_VERSION" ]; then
-  echo -e "\033[0;31mPlease run this script with bash\033[0m" >&2
-  return 1
-fi
-
 # gah - GitHub Releases App Installer
 #
 # @author Marek `marverix` Sierociński
 # @license Apache-2.0
+
+if [ -z "$BASH_VERSION" ]; then
+  echo -e "\033[0;31mPlease run this script with bash\033[0m" >&2
+  # fail with code 1 - but do not exit the current shell
+  return 1
+fi
 
 # Pipeline mode
 set -e
