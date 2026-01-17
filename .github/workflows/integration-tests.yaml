@@ -12,24 +12,33 @@ jobs:
           - title: Linux (Ubuntu) @amd64
             runner: ubuntu-slim
             container: null
+            pre-run: null
 
           - title: Linux (Alpine) @amd64
             runner: ubuntu-latest
             container: library/alpine:3
+            pre-run: apk add --no-cache jq openssl bash git curl tar unzip
 
           - title: MacOS @arm64
             runner: macos-15
             container: null
+            pre-run: env
 
           - title: MacOS @amd64
             runner: macos-15-intel
             container: null
+            pre-run: env
 
     name: Test on ${{ matrix.title }}
     runs-on: ${{ matrix.runner }}
     container: ${{ matrix.container }}
 
     steps:
+      - name: Pre-run
+        if: ${{ matrix.pre-run }}
+        shell: bash
+        run: ${{ matrix.pre-run }}
+
       - name: Check pre-requisites
         shell: bash
         run: |
