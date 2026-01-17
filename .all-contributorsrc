@@ -94,6 +94,15 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "rj-au",
+      "name": "Richard J",
+      "avatar_url": "https://avatars.githubusercontent.com/u/106497642?v=4",
+      "profile": "https://stafflink.com.au",
+      "contributions": [
+        "bug"
+      ]
     }
   ]
 }
