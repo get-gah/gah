@@ -24,3 +24,15 @@ teardown() {
 
 	assert_output "amd64"
 }
+
+@test "supports_bash_regex should return true for Bash 4+" {
+	# This test will pass/fail based on actual Bash version
+	# If running Bash 4+, it should succeed
+	if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+		run supports_bash_regex
+		assert_success
+	else
+		run supports_bash_regex
+		assert_failure
+	fi
+}

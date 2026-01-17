@@ -192,3 +192,63 @@ teardown() {
 	assert_success
 	assert_output '([a-z][a-z0-9_-]+?)([_-]v?[0-9.]+)?([._-](apple[._-])?(darwin|macos|osx)[._-](arm64|aarch64|universal)|[._-](arm64|aarch64|universal)[._-](apple[._-])?(darwin|macos|osx))([_-][a-z0-9_-]+)?(\.zip|\.tar\.gz|\.tgz|\.tar\.xz|\.txz|\.tar\.bz2|\.tbz)?'
 }
+
+@test "regex_match should match simple pattern" {
+	run regex_match "hello-world" "^hello-world$"
+	assert_success
+}
+
+@test "regex_match should not match wrong pattern" {
+	run regex_match "hello-world" "^goodbye$"
+	assert_failure
+}
+
+@test "regex_match should match complex pattern" {
+	run regex_match "app-v1.2.3-linux-amd64.tar.gz" "^[a-z]+-v[0-9.]+-linux-amd64"
+	assert_success
+}
+
+@test "regex_match should handle non-greedy quantifiers" {
+	run regex_match "app-v1.2.3-linux-amd64" "^([a-z]+?)-.+"
+	assert_success
+}
+
+@test "regex_capture should extract first capture group" {
+	result=$(regex_capture "https://github.com/owner/repo" '^https://github.com/([^/]+)/([^/]+)$' 1)
+	assert_equal "$result" "owner"
+}
+
+@test "regex_capture should extract second capture group" {
+	result=$(regex_capture "https://github.com/owner/repo" '^https://github.com/([^/]+)/([^/]+)$' 2)
+	assert_equal "$result" "repo"
+}
+
+@test "regex_capture should extract with non-greedy quantifier" {
+	result=$(regex_capture "app-v1.2.3-linux-amd64" '^([a-z]+?)-v' 1)
+	assert_equal "$result" "app"
+}
+
+@test "regex_capture should return empty string when no match" {
+	result=$(regex_capture "hello" '^goodbye(.+)$' 1)
+	assert_equal "$result" ""
+}
+
+@test "regex_capture should default to first capture group" {
+	result=$(regex_capture "app-v1.2.3" '^([a-z]+)-v([0-9.]+)$')
+	assert_equal "$result" "app"
+}
+
+@test "regex_match_text should extract full match" {
+	result=$(regex_match_text "Download from https://example.com/file.tar.gz here" 'https://[^ ]+')
+	assert_equal "$result" "https://example.com/file.tar.gz"
+}
+
+@test "regex_match_text should return empty string when no match" {
+	result=$(regex_match_text "hello world" 'https://[^ ]+')
+	assert_equal "$result" ""
+}
+
+@test "regex_match_text should handle complex pattern with non-greedy" {
+	result=$(regex_match_text "app-v1.2.3-linux-amd64.tar.gz" '([a-z]+?)-v[0-9.]+-linux-amd64\.tar\.gz')
+	assert_equal "$result" "app-v1.2.3-linux-amd64.tar.gz"
+}

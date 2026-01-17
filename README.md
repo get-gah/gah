@@ -29,12 +29,13 @@ Nowadays more and more command-line tools and applications are distributed via G
 
 ## Requirements
 
-- `bash`
+- `bash` (version 3 or higher)
+- `perl` (by default installed on most unix systems, required for bash < 4)
 - `jq`
 - `curl` or `wget`
-- `tar`
-- `unzip`
-- `openssl`
+- `tar` (by default installed on most unix systems)
+- `unzip` (by default installed on most unix systems)
+- `openssl` (by default installed on most unix systems)
 
 ## Installation
 
