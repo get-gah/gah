@@ -6,6 +6,7 @@ on:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - title: Linux (Ubuntu) @amd64
@@ -34,6 +35,8 @@ jobs:
 
       - name: Install something
         shell: bash
+        env:
+          GITHUB_PAT: ${{ github.token }}
         run: ./gah install mikefarah/yq --unattended
 
       - name: Test if yq was installed correctly
