@@ -11,8 +11,6 @@ jobs:
         include:
           - title: Linux (Ubuntu) @amd64
             runner: ubuntu-slim
-            container: null
-            pre-run: null
 
           - title: Linux (Alpine) @amd64
             runner: ubuntu-latest
@@ -21,12 +19,10 @@ jobs:
 
           - title: MacOS @arm64
             runner: macos-15
-            container: null
             pre-run: env
 
           - title: MacOS @amd64
             runner: macos-15-intel
-            container: null
             pre-run: env
 
     name: Test on ${{ matrix.title }}
@@ -36,18 +32,18 @@ jobs:
     steps:
       - name: Pre-run
         if: ${{ matrix.pre-run }}
-        shell: bash
+        shell: sh
         run: ${{ matrix.pre-run }}
 
       - name: Check pre-requisites
         shell: bash
         run: |
-          if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
-            echo "::error title=Pre-requisite failed::Bash 4.0 or higher is required"
+          if [ "${BASH_VERSINFO[0]}" -lt 3 ]; then
+            echo "::error title=Pre-requisite failed::Bash 3.0 or higher is required"
             exit 1
           fi
 
-          required_commands=(tar unzip curl jq)
+          required_commands=(tar unzip curl jq openssl)
           for cmd in "${required_commands[@]}"; do
             if ! command -v "$cmd" &> /dev/null; then
               echo "::error title=Pre-requisite failed::$cmd is not installed"
@@ -72,18 +68,19 @@ jobs:
           GAH_INSTALL_DIR="$RUNNER_TEMP/.bin"
           echo "GAH_INSTALL_DIR=$GAH_INSTALL_DIR" >> $GITHUB_ENV
           mkdir -p "$GAH_INSTALL_DIR"
+          cp gah "$GAH_INSTALL_DIR/gah"
 
+          # Add GAH_INSTALL_DIR to PATH
           echo "PATH=$GAH_INSTALL_DIR:$PATH" >> $GITHUB_ENV
 
-          if [[ -n "$RUNNER_DEBUG" ]]; then
-            echo "GAH_DEBUG=true" >> $GITHUB_ENV
-          fi
+          # Enable debug logging
+          echo "GAH_DEBUG=true" >> $GITHUB_ENV
 
       - name: Install something
         shell: bash
         env:
           GITHUB_PAT: ${{ github.token }}
-        run: ./gah install mikefarah/yq
+        run: gah install mikefarah/yq
 
       - name: Test if yq was installed correctly
         run: yq --version

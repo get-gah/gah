@@ -57,14 +57,22 @@ function require_command() {
 #endregion
 #--------------------------------------------------
 
-# Require that bash is at least 4.0
-print_blue "Checking if Bash 4.0 or higher is installed..."
-if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
-	throw_error 1 "Bash 4.0 or higher is required"
+# Require that bash is at least 3.0
+print_blue "Checking if Bash 3.0 or higher is installed..."
+if [ "${BASH_VERSINFO[0]}" -lt 3 ]; then
+	throw_error 1 "Bash 3.0 or higher is required"
 fi
 print_green "OK"
 
 # Check if required commands are installed
+# Perl is only required for Bash 3.x (Bash 4+ has native regex support)
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+	print_yellow "Bash 3.x detected - Perl is required for regex support"
+	require_command perl
+else
+	print_green "Bash 4+ detected - native regex support available"
+fi
+
 require_command tar
 require_command unzip
 require_command curl wget

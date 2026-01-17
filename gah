@@ -71,6 +71,16 @@ function cleanup() {
 	fi
 }
 
+# Check if Bash supports non-greedy quantifiers (Bash 4.0+)
+function supports_bash_regex() {
+	local bash_major_version="${BASH_VERSINFO[0]}"
+	[[ "$bash_major_version" -ge 4 ]]
+}
+
+#endregion
+#--------------------------------------------------
+#region HTTP functions
+
 function http_get() {
 	local url="$1"
 	# if curl is available, use it, otherwise use wget.
@@ -196,6 +206,53 @@ function get_md_url_regexp() {
 	echo "\(https:\/\/[a-z0-9.\/]+\/$(get_filename_regexp)\)"
 }
 
+# Generic regex matching function
+# Usage: regex_match "string" "pattern"
+# Returns: 0 if matches, 1 if doesn't match
+function regex_match() {
+	local string="$1"
+	local pattern="$2"
+	
+	if supports_bash_regex; then
+		[[ "$string" =~ $pattern ]]
+	else
+		echo "$string" | perl -ne "exit(0) if /$pattern/; exit(1)" 2>/dev/null
+	fi
+}
+
+# Extract capture group from regex match
+# Usage: regex_capture "string" "pattern" capture_group_number
+# Returns: captured text or empty string
+function regex_capture() {
+	local string="$1"
+	local pattern="$2"
+	local capture_group="${3:-1}"
+	
+	if supports_bash_regex; then
+		if [[ "$string" =~ $pattern ]]; then
+			echo "${BASH_REMATCH[$capture_group]}"
+		fi
+	else
+		echo "$string" | perl -ne "print \$$capture_group if /$pattern/"
+	fi
+}
+
+# Extract full match from regex
+# Usage: regex_match_text "string" "pattern"
+# Returns: matched text or empty string
+function regex_match_text() {
+	local string="$1"
+	local pattern="$2"
+	
+	if supports_bash_regex; then
+		if [[ "$string" =~ $pattern ]]; then
+			echo "${BASH_REMATCH[0]}"
+		fi
+	else
+		echo "$string" | perl -ne "print \$& if /$pattern/"
+	fi
+}
+
 #endregion
 #--------------------------------------------------
 #region GitHub API functions
@@ -250,8 +307,9 @@ function fetch_release_info() {
 function get_repo_name() {
 	local release_json="$1"
 	local html_url=$(jq -r '.html_url' "$release_json")
-	if [[ "$html_url" =~ $REGEXP_NAME_FROM_HTML_URL ]]; then
-		echo "${BASH_REMATCH[1]}"
+	local match=$(regex_capture "$html_url" "$REGEXP_NAME_FROM_HTML_URL" 1)
+	if [[ -n "$match" ]]; then
+		echo "$match"
 	fi
 }
 
@@ -266,11 +324,11 @@ function find_download_url() {
 
 	for name in $(jq -r '.assets[].name' "$release_json"); do
 		local lower_name=$(echo "$name" | tr '[A-Z]' '[a-z]')
-		if [[ "$lower_name" =~ $regexp ]]; then
-			if [[ "$lower_name" =~ $REGEXP_IGNORE_PATTERN ]]; then
+		if regex_match "$lower_name" "$regexp"; then
+			if regex_match "$lower_name" "$REGEXP_IGNORE_PATTERN"; then
 				print_debug "  $name ... Ignored"
 			else
-				print_debug "  $name ... Match!"
+				print_debug "  $name ... MATCH!"
 				found="true"
 				jq -r --arg name "$name" '.assets[] | select(.name == $name) | .browser_download_url' "$release_json"
 			fi
@@ -292,13 +350,13 @@ function find_download_url() {
 
 	jq -r '.body' "$release_json" | while read -r line; do
 		lower_line=$(echo "$line" | tr '[A-Z]' '[a-z]')
-		if [[ "$lower_line" =~ $regexp ]]; then
-			print_debug "  $line ... Match!"
+		local match=$(regex_match_text "$lower_line" "$regexp")
+		if [[ -n "$match" ]]; then
+			print_debug "  $line ... MATCH!"
 			found="true"
-			line="${BASH_REMATCH[0]}"
-			line=${line:1}
-			line=${line::-1}
-			echo $line
+			match=${match:1}
+			match=${match%?}
+			echo "$match"
 		else
 			print_debug "  $line ... Doesn't match"
 		fi
@@ -456,8 +514,8 @@ function command_install() {
 			if [[ -z "$download_url" ]]; then
 				throw_error 22 "Invalid selection index ($unattended_select_index) for unattended mode. No URL at that index."
 			fi
-			print_yellow "Unattended mode, using download URL at index $unattended_select_index: $download_url"
 
+			print_yellow "Unattended mode, using download URL at index $unattended_select_index: $download_url"
 
 		else
 			print_yellow "Please select one:"
@@ -526,7 +584,7 @@ function command_install() {
 		print_debug "OK, lower case file name: $lower_file_name"
 
 		print_debug "Checking if file should be skipped"
-		if [[ "$lower_file_name" =~ $REGEXP_SKIP_FILES ]]; then
+		if regex_match "$lower_file_name" "$REGEXP_SKIP_FILES"; then
 			print_debug "File name matches skip pattern - Skipping: $file_name"
 			continue
 		fi
@@ -534,8 +592,9 @@ function command_install() {
 
 		print_debug "Removing version/os/arch parts from file name if present"
 		local regexp=$(get_name_regexp)
-		if [[ "$file_name" =~ $regexp ]]; then
-			file_name="${BASH_REMATCH[1]}"
+		local match=$(regex_capture "$file_name" "$regexp" 1)
+		if [[ -n "$match" ]]; then
+			file_name="$match"
 			print_debug "OK, cleaned file name"
 		fi
 
@@ -620,7 +679,7 @@ function main() {
 			throw_error 1 "Please provide either repo in format 'owner/repo_name' or known alias.\n$HELP_STRING"
 
 		elif [[ "$2" == *"/"* ]]; then
-			if [[ "$2" =~ ^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$ ]]; then
+			if regex_match "$2" "^[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+$"; then
 				repo="$2"
 			else
 				throw_error 2 "Given string '$2' is not in format 'owner/repo_name'.\n$HELP_STRING"
