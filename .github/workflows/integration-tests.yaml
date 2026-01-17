@@ -14,7 +14,7 @@ jobs:
             container: null
 
           - title: Linux (Alpine) @amd64
-            runner: ubuntu-slim
+            runner: ubuntu-latest
             container: library/alpine:3
 
           - title: MacOS @arm64
@@ -30,14 +30,51 @@ jobs:
     container: ${{ matrix.container }}
 
     steps:
+      - name: Check pre-requisites
+        shell: bash
+        run: |
+          if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+            echo "::error title=Pre-requisite failed::Bash 4.0 or higher is required"
+            exit 1
+          fi
+
+          required_commands=(tar unzip curl jq)
+          for cmd in "${required_commands[@]}"; do
+            if ! command -v "$cmd" &> /dev/null; then
+              echo "::error title=Pre-requisite failed::$cmd is not installed"
+              exit 1
+            fi
+          done
+
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Prepare environment
+        shell: bash
+        env:
+          RUNNER_TEMP: ${{ runner.temp }}
+        run: |
+          echo "UNATTENDED=true" >> $GITHUB_ENV
+
+          GAH_CACHE_DIR="$RUNNER_TEMP/.cache"
+          echo "GAH_CACHE_DIR=$GAH_CACHE_DIR" >> $GITHUB_ENV
+          mkdir -p "$GAH_CACHE_DIR"
+
+          GAH_INSTALL_DIR="$RUNNER_TEMP/.bin"
+          echo "GAH_INSTALL_DIR=$GAH_INSTALL_DIR" >> $GITHUB_ENV
+          mkdir -p "$GAH_INSTALL_DIR"
+
+          echo "PATH=$GAH_INSTALL_DIR:$PATH" >> $GITHUB_ENV
+
+          if [[ -n "$RUNNER_DEBUG" ]]; then
+            echo "GAH_DEBUG=true" >> $GITHUB_ENV
+          fi
 
       - name: Install something
         shell: bash
         env:
           GITHUB_PAT: ${{ github.token }}
-        run: ./gah install mikefarah/yq --unattended
+        run: ./gah install mikefarah/yq
 
       - name: Test if yq was installed correctly
         run: yq --version
