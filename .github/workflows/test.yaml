@@ -1,58 +1,16 @@
 name: 🧪 Test
 
 on:
-  workflow_call:
+  workflow_dispatch:
   pull_request: 
     branches:
       - master
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true
+  run-unit-tests:
+    uses: ./.github/workflows/unit-tests.yaml
 
-      - name: Test
-        shell: bash
-        run: ./test/bats/bin/bats ./test
-
-  integration-alpine:
-    needs: test
-    runs-on: ubuntu-latest
-    container: library/alpine:3
-    steps:
-      - name: Install dependencies
-        run: apk add jq openssl bash git
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-      - name: Test
-        shell: bash
-        run: ./test/bats/bin/bats ./test
-      - name: Install something
-        shell: bash
-        run: ./gah install mikefarah/yq --unattended
-      - name: Test if yq was installed correctly
-        run: yq --version
-
-  integration-debian:
-    needs: test
-    runs-on: ubuntu-latest
-    container: library/debian:13-slim
-    steps:
-      - name: Install dependencies
-        run: apt-get update && apt-get install -y jq openssl curl git
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-      - name: Test
-        run: ./test/bats/bin/bats ./test
-      - name: Install something
-        run: ./gah install mikefarah/yq --unattended
-      - name: Test if yq was installed correctly
-        run: yq --version
+  run-integration-tests:
+    needs:
+      - run-unit-tests
+    uses: ./.github/workflows/integration-tests.yaml

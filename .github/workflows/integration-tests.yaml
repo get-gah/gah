@@ -1,0 +1,40 @@
+name: 🧪 Integration Tests
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        include:
+          - title: Linux (Ubuntu) @amd64
+            runner: ubuntu-slim
+            container: null
+
+          - title: Linux (Alpine) @amd64
+            runner: ubuntu-slim
+            container: library/alpine:3
+
+          - title: MacOS @arm64
+            runner: macos-15
+            container: null
+
+          - title: MacOS @amd64
+            runner: macos-15-intel
+            container: null
+
+    name: Test on ${{ matrix.title }}
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.container }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install something
+        shell: bash
+        run: ./gah install mikefarah/yq --unattended
+
+      - name: Test if yq was installed correctly
+        run: yq --version

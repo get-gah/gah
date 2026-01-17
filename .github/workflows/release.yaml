@@ -10,11 +10,18 @@ on:
       - test/**
 
 jobs:
-  test:
-    uses: ./.github/workflows/test.yaml
+  run-unit-tests:
+    uses: ./.github/workflows/unit-tests.yaml
+
+  run-integration-tests:
+    needs:
+      - run-unit-tests
+    uses: ./.github/workflows/integration-tests.yaml
 
   release:
-    needs: test
+    needs:
+      - run-unit-tests
+      - run-integration-tests
     runs-on: ubuntu-latest
     
     permissions:
