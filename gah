@@ -22,6 +22,10 @@ if [[ -z "$GAH_CACHE_DIR" ]]; then
 	GAH_CACHE_DIR="$HOME/.cache/gah"
 fi
 
+if [[ -z "$GAH_CONFIG_DIR" ]]; then
+	GAH_CONFIG_DIR="$HOME/.config/gah"
+fi
+
 if [[ -z "$GAH_INSTALL_DIR" ]]; then
 	if [[ "$EUID" -ne 0 ]]; then
 		GAH_INSTALL_DIR="$HOME/.local/bin"
@@ -30,7 +34,12 @@ if [[ -z "$GAH_INSTALL_DIR" ]]; then
 	fi
 fi
 
-GAH_DB_FILE="$GAH_CACHE_DIR/db.json"
+if [[ -z "$GAH_ALIASES_URL" ]]; then
+	GAH_ALIASES_URL="https://raw.githubusercontent.com/get-gah/gah-db/refs/heads/master/db.json"
+fi
+
+GAH_CACHED_ALIASES_FILE="$GAH_CACHE_DIR/aliases.json"
+GAH_LOCAL_ALIASES_FILE="$GAH_CONFIG_DIR/local_aliases.json"
 
 #endregion
 #--------------------------------------------------
@@ -420,21 +429,37 @@ function verify_digest() {
 #--------------------------------------------------
 #region DB functions
 
-function fetch_db() {
-	print_debug "Fetching DB"
-	http_get "https://raw.githubusercontent.com/get-gah/gah-db/refs/heads/master/db.json" > "$GAH_DB_FILE"
+function fetch_aliases_db() {
+	print_debug "Fetching aliases DB"
+	http_get "$GAH_ALIASES_URL" > "$GAH_CACHED_ALIASES_FILE"
 }
 
-function get_db_path() {
-	if [[ ! -f "$GAH_DB_FILE" ]] || test "$(find "$GAH_DB_FILE" -mmin +1440)"; then
-		fetch_db
+function get_aliases_db_file_path() {
+	if [[ ! -f "$GAH_CACHED_ALIASES_FILE" ]] || test "$(find "$GAH_CACHED_ALIASES_FILE" -mmin +1440)"; then
+		fetch_aliases_db
 	fi
 
-	echo "$GAH_DB_FILE"
+	echo "$GAH_CACHED_ALIASES_FILE"
 }
 
+function get_local_alias() {
+	if [[ ! -f "$GAH_LOCAL_ALIASES_FILE" ]]; then
+		echo "null"
+		return
+	fi
+
+	jq -r --arg x "$1" '.aliases[$x]' "$GAH_LOCAL_ALIASES_FILE"
+}
+
+# Local aliases take precedence over the aliases DB
 function get_known_alias() {
-	jq -r --arg x "$1" '.aliases[$x]' "$(get_db_path)"
+	local local_alias="$(get_local_alias "$1")"
+	if [[ "$local_alias" != "null" ]]; then
+		echo "$local_alias"
+		return
+	fi
+
+	jq -r --arg x "$1" '.aliases[$x]' "$(get_aliases_db_file_path)"
 }
 
 #endregion
@@ -461,6 +486,7 @@ function command_help() {
 	echo "gah"
 	echo "  install <github_owner/github_repo_name> | known_alias> [--tag=<git_tag>] [--unattended]"
 	echo "  aliases <show | refresh>"
+	echo "  local-aliases <show | add <alias> <github_owner/github_repo_name> | remove <alias>>"
 	echo "  update"
 	echo "  help"
 	echo "  version"
@@ -617,17 +643,6 @@ function command_install() {
 	print_green "Done!"
 }
 
-function command_aliases_show() {
-	echo "Known aliases:"
-	jq -r '.aliases' "$(get_db_path)"
-}
-
-function command_aliases_refresh() {
-	print_blue "Refreshing aliases"
-	fetch_db
-	print_green "Done!"
-}
-
 function command_update() {
 	local gah_repo="get-gah/gah"
 	local script_realpath=$(realpath "$0")
@@ -659,6 +674,76 @@ function command_update() {
 
 	print_green "Done!"
 }
+
+#endregion
+#--------------------------------------------------
+#region Aliases functions
+
+function command_aliases_show() {
+	echo "Known aliases:"
+	jq -r '.aliases' "$(get_aliases_db_file_path)"
+}
+
+function command_aliases_refresh() {
+	print_blue "Refreshing aliases"
+	fetch_aliases_db
+	print_green "Done!"
+}
+
+#endregion
+#--------------------------------------------------
+#region Local aliases functions
+
+function command_local_aliases_show() {
+	echo "Local aliases:"
+	if [[ ! -f "$GAH_LOCAL_ALIASES_FILE" ]]; then
+		echo "{}"
+	else
+		jq -r '.aliases' "$GAH_LOCAL_ALIASES_FILE"
+	fi
+}
+
+function command_local_aliases_add() {
+	local alias_name="$1"
+	local repo="$2"
+
+	if [[ -z "$alias_name" || -z "$repo" ]]; then
+		throw_error 6 "Please provide alias name and repo in format 'owner/repo_name'.\n$HELP_STRING"
+	fi
+
+	if ! regex_match "$repo" "^[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+$"; then
+		throw_error 2 "Given string '$repo' is not in format 'owner/repo_name'.\n$HELP_STRING"
+	fi
+
+	# Create local aliases file if it doesn't exist
+	mkdir -p "$GAH_CONFIG_DIR"
+	if [[ ! -f "$GAH_LOCAL_ALIASES_FILE" ]]; then
+		echo '{"aliases":{}}' > "$GAH_LOCAL_ALIASES_FILE"
+	fi
+
+	print_blue "Adding local alias '$alias_name' -> '$repo'"
+	local new_content=$(jq --arg k "$alias_name" --arg v "$repo" '.aliases[$k] = $v' "$GAH_LOCAL_ALIASES_FILE")
+	echo "$new_content" > "$GAH_LOCAL_ALIASES_FILE"
+	print_green "Done!"
+}
+
+function command_local_aliases_remove() {
+	local alias_name="$1"
+
+	if [[ -z "$alias_name" ]]; then
+		throw_error 6 "Please provide alias name.\n$HELP_STRING"
+	fi
+
+	if [[ ! -f "$GAH_LOCAL_ALIASES_FILE" ]] || [[ "$(jq -r --arg x "$alias_name" '.aliases[$x]' "$GAH_LOCAL_ALIASES_FILE")" == "null" ]]; then
+		throw_error 7 "Given string '$alias_name' is not a local alias.\nTo see local aliases type 'gah local-aliases show'."
+	fi
+
+	print_blue "Removing local alias '$alias_name'"
+	local new_content=$(jq --arg k "$alias_name" 'del(.aliases[$k])' "$GAH_LOCAL_ALIASES_FILE")
+	echo "$new_content" > "$GAH_LOCAL_ALIASES_FILE"
+	print_green "Done!"
+}
+
 
 #endregion
 #--------------------------------------------------
@@ -733,6 +818,20 @@ function main() {
 
 		elif [[ "$2" == "refresh" ]]; then
 			command_aliases_refresh
+
+		else
+			throw_error 4 "Unknown subcommand.\n$HELP_STRING"
+		fi
+
+	elif [[ "$1" == "local-aliases" ]]; then
+		if [[ "$2" == "show" ]]; then
+			command_local_aliases_show
+
+		elif [[ "$2" == "add" ]]; then
+			command_local_aliases_add "$3" "$4"
+
+		elif [[ "$2" == "remove" ]]; then
+			command_local_aliases_remove "$3"
 
 		else
 			throw_error 4 "Unknown subcommand.\n$HELP_STRING"

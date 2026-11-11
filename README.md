@@ -25,6 +25,7 @@ Nowadays more and more command-line tools and applications are distributed via G
 - 🎳 Supports multiple matching apps in a single GitHub Release
 - 📤 Supports archived (`.zip`, `.tar.gz`, `.tar.bz2`, `.tar.xz`) and single binary releases
 - 🗃 Has own base of predefined aliases for GitHub repositories (PRs are welcome!)
+- 📝 Supports your own local aliases
 - 🔐 Verifies downloaded files using provided by `openssl` against [asset's digest value](https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#get-a-release-asset)
 
 ## Requirements
@@ -64,6 +65,24 @@ The file `db.json` with aliases is located in [get-gah/gah-db](https://github.co
 > Previously the database file was located on a separate branch of this repository. Now it is moved to a separate repository to allow independent updates. Please make sure to use the latest version of `gah` to get the new database location.
 
 The file is cached locally for 24h.
+
+### Using local aliases
+
+You can also define your own aliases, which are stored locally in `$GAH_CONFIG_DIR/local_aliases.json`. Local aliases take precedence over the predefined ones, so you can use them to override a predefined alias too.
+
+```bash
+# Add an alias
+gah local-aliases add my-tool my-owner/my-tool-repo
+
+# Install using the alias
+gah install my-tool
+
+# List local aliases
+gah local-aliases show
+
+# Remove an alias
+gah local-aliases remove my-tool
+```
 
 ### Specifying the tag
 
@@ -147,7 +166,9 @@ Here is the list of supported environment variables:
 Name | Description | Default
 ---|---|---
 `GAH_INSTALL_DIR` | The directory where the gah will install your applications. This directory must be in your `PATH` environment variable. | `~/.local/bin`, for superuser it will be `/usr/local/bin`
+`GAH_CONFIG_DIR` | The directory where configuration (e.g. local aliases) will be stored. | `~/.config/gah`
 `GAH_CACHE_DIR` | The directory where cache will be stored. | `~/.cache/gah`
+`GAH_ALIASES_URL` | The URL of the JSON file with predefined aliases. Useful if you want to use your own aliases database. | `https://raw.githubusercontent.com/get-gah/gah-db/refs/heads/master/db.json`
 `GITHUB_PAT` | GitHub Personal Access Token for authenticated API requests. Increases rate limit from 60 to 5,000 requests per hour. Create a token at https://github.com/settings/tokens | None (unauthenticated requests)
 `GAH_DEBUG` | Enable debug output showing detailed information about the installation process. | `false`
 `GAH_UNATTENDED` | Enable unattended mode, which skips confirmation prompts during installation. | `false`
