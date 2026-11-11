@@ -202,6 +202,7 @@ Thanks to all contributors:
       <td align="center" valign="top" width="14.28%"><a href="http://zansh.in"><img src="https://avatars.githubusercontent.com/u/824991?v=4&size=100" width="100px" height="100px" alt="Conan"/><br /><sub><b>Conan</b></sub></a><br /><a href="https://github.com/get-gah/gah/issues?q=author%3Ashuckster" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/AndreiCherniaev"><img src="https://avatars.githubusercontent.com/u/27889022?v=4&size=100" width="100px" height="100px" alt="Andrei Cherniaev"/><br /><sub><b>Andrei Cherniaev</b></sub></a><br /><a href="#ideas-AndreiCherniaev" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://jrgn.me"><img src="https://avatars.githubusercontent.com/u/89452932?v=4&size=100" width="100px" height="100px" alt="jrgn"/><br /><sub><b>jrgn</b></sub></a><br /><a href="#ideas-jrgn9" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/vimagick"><img src="https://avatars.githubusercontent.com/u/6779585?v=4&size=100" width="100px" height="100px" alt="K̶e̶v̶i̶n̶"/><br /><sub><b>K̶e̶v̶i̶n̶</b></sub></a><br /><a href="#ideas-vimagick" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
 </table>
